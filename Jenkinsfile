@@ -7,7 +7,7 @@ node {
       bat "chef exec cookstyle ."
     }
     stage('Chef Unit Testing') {
-      bat "chef exec rspec ."
+      bat "chef exec rspec"
     }
     stage('package') {
       echo "Testing"
