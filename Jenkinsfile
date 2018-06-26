@@ -20,7 +20,7 @@ node {
 
   try {
     stage('Prepare') {
-      bat "rmdir /S /Q cookbookDirectory"
+      bat "rmdir /S /Q ${cookbookDirectory}"
       bat "git clean -fdx"
       fetch(scm, cookbookDirectory, currentBranch)
     }
