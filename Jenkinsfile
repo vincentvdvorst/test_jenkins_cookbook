@@ -70,7 +70,7 @@ stage('Versioning') {
             git diff --name-only master
           """
         )
-        stdout.eachline {
+        stdout.eachLine {
           echo it
         }
       }
