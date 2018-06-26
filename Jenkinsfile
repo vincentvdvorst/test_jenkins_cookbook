@@ -7,6 +7,7 @@ node {
       bat "chef exec cookstyle ."
     }
     stage('Chef Unit Testing') {
+      bat "delivery local unit"
       bat "chef exec rspec"
     }
     stage('package') {
@@ -17,7 +18,7 @@ node {
     }
   } finally {
     stage('cleanup') {
-      deleteDir()
+      // deleteDir()
       echo "Testing"
     }
   }
