@@ -14,7 +14,10 @@ node {
     }
     stage('Chef Integration Testing') {
       echo "Starting Kitchen tests, this may take awhile."
-      bat "kitchen verify"
+      bat '''
+        set KITCHEN_YAML=".kitchen.jenkins.yml"
+        kitchen verify
+      '''
     }
     stage('publish') {
       echo "Testing"
