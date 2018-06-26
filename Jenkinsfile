@@ -70,7 +70,8 @@ stage('Versioning') {
             git diff --name-only master
           """
         )
-        println stdout.trim().split().size()
+        String[] test = stdout.trim().split()
+        println test.size()
       }
       currentBuild.result = 'SUCCESS'
     }
