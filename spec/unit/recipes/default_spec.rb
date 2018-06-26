@@ -1,4 +1,3 @@
-
 #
 # Cookbook:: test_jenkins_cookbook
 # Spec:: default
