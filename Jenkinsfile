@@ -65,14 +65,17 @@ stage('Versioning') {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
-        final changeSet = build.getChangeSet()
-        final changeSetIterator = changeSet.iterator()
-        while (changeSetIterator.hasNext()) {
-          final gitChangeSet = changeSetIterator.next()
-          for (final path : gitChangeSet.getPaths()) {
-            println path.getPath()
-          }
-        }
+        def publisher = LastChanges.getLastChangesPublisher "PREVIOUS_REVISION", "SIDE", "LINE", true, true, "", "", "", "", ""
+              publisher.publishLastChanges()
+              def changes = publisher.getLastChanges()
+              println(changes.getEscapedDiff())
+              for (commit in changes.getCommits()) {
+                  println(commit)
+                  def commitInfo = commit.getCommitInfo()
+                  println(commitInfo)
+                  println(commitInfo.getCommitMessage())
+                  println(commit.getChanges())
+              }
       }
       currentBuild.result = 'SUCCESS'
     }
