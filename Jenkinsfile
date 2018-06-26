@@ -71,7 +71,7 @@ stage('Versioning') {
           """
         )
         stdout.eachLine {
-          echo it
+          println it
         }
       }
       currentBuild.result = 'SUCCESS'
