@@ -60,32 +60,55 @@ stage('Unit Testing') {
   }
 }
 
-stage('Functional (Kitchen)') {
+stage('Versioning') {
   node {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
-       bat '''
-          set KITCHEN_YAML=.kitchen.jenkins.yml
-          set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
-          kitchen verify
-        '''
+        final changeSet = build.getChangeSet()
+        final changeSetIterator = changeSet.iterator()
+        while (changeSetIterator.hasNext()) {
+          final gitChangeSet = changeSetIterator.next()
+          for (final path : gitChangeSet.getPaths()) {
+            println path.getPath()
+          }
+        }
       }
       currentBuild.result = 'SUCCESS'
     }
     catch(err) {
       currentBuild.result = 'FAILED'
-    }
-    finally {
-      dir(cookbookDirectory) {
-        bat '''
-          set KITCHEN_YAML=.kitchen.jenkins.yml
-          kitchen destroy
-        '''
-      }
+      throw err
     }
   }
 }
+
+// stage('Functional (Kitchen)') {
+//   node {
+//     try {
+//       fetch(scm, cookbookDirectory, currentBranch)
+//       dir(cookbookDirectory) {
+//        bat '''
+//           set KITCHEN_YAML=.kitchen.jenkins.yml
+//           set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
+//           kitchen verify
+//         '''
+//       }
+//       currentBuild.result = 'SUCCESS'
+//     }
+//     catch(err) {
+//       currentBuild.result = 'FAILED'
+//     }
+//     finally {
+//       dir(cookbookDirectory) {
+//         bat '''
+//           set KITCHEN_YAML=.kitchen.jenkins.yml
+//           kitchen destroy
+//         '''
+//       }
+//     }
+//   }
+// }
 
 stage('Publishing') {
   node {
