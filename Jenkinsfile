@@ -71,9 +71,7 @@ stage('Versioning') {
           """
         )
         List lines =  stdout.split("\\r?\\n")
-        for (line in lines) {
-          println it
-        }
+        println lines.size
       }
       currentBuild.result = 'SUCCESS'
     }
