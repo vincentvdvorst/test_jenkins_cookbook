@@ -1,10 +1,5 @@
 def currentBranch = env.BRANCH_NAME
 
-
-String determineRepoName() {
-    return scm.getUserRemoteConfigs()[0].getUrl().tokenize('/')[3].split("\\.")[0]
-}
-
 def fetch(scm, cookbookDirectory, currentBranch){
   checkout([$class: 'GitSCM',
     branches: scm.branches,
@@ -20,7 +15,7 @@ def fetch(scm, cookbookDirectory, currentBranch){
 
 node {
 
-  def cookbook = determineRepoName
+  def cookbook = 'test_jenkins_cookbook'
   def cookbookDirectory = "D:/chef/cookbooks/${cookbook}"
 
   try {
