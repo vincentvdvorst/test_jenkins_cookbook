@@ -15,13 +15,15 @@ def fetch(scm, cookbookDirectory, currentBranch){
 
 node {
 
+  def chefrepo = "D:/chef/cookbooks"
   def cookbook = 'test_jenkins_cookbook'
-  def cookbookDirectory = "D:/chef/cookbooks/${cookbook}"
+  def cookbookDirectory = "${chefrepo}/${cookbook}"
 
   try {
     stage('Prepare') {
-      bat "rmdir /S /Q ${cookbookDirectory}"
-      bat "git clean -fdx"
+      dir(chefrepo){
+        bat "rmdir /S /Q ${cookbook}"
+      }
       fetch(scm, cookbookDirectory, currentBranch)
     }
     stage('Chef Linting') {
