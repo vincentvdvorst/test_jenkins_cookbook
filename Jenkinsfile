@@ -58,7 +58,7 @@ def fetch(scm, cookbookDirectory, currentBranch) {
 //       throw err
 //     }
 //   }
-}
+// }
 
 stage('Versioning') {
   node {
