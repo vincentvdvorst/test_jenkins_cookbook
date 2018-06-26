@@ -1,7 +1,7 @@
 node {
   try {
     stage('Prepare') {
-      bat "git clean -fdx"
+      deleteDir()
       checkout scm
     }
     stage('Chef Linting') {
