@@ -9,7 +9,7 @@ driver:
   iam_profile_name: JenkinsBuilder
   aws_ssh_key_id: vvdvorst-us-east-1-sandbox
   tags:
-    Name: 'chef_automate_test_instance_gs_role_shippingservice'
+    Name: 'chef_jenkins_test'
     StackColor: 'Green'
 
 transport:
