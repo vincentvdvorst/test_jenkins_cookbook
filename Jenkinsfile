@@ -18,46 +18,46 @@ def fetch(scm, cookbookDirectory, currentBranch) {
   ])
 }
 
-stage('Linting') {
-  node {
+// stage('Linting') {
+//   node {
 
-    echo "cookbook: ${cookbook}"
-    echo "current branch: ${currentBranch}"
-    echo "checkout directory: ${cookbookDirectory}"
-    try {
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory){
-        // clean out any old artifacts from the cookbook directory including the berksfile.lock file
-        bat "del Berksfile.lock"
-      }
+//     echo "cookbook: ${cookbook}"
+//     echo "current branch: ${currentBranch}"
+//     echo "checkout directory: ${cookbookDirectory}"
+//     try {
+//       fetch(scm, cookbookDirectory, currentBranch)
+//       dir(cookbookDirectory){
+//         // clean out any old artifacts from the cookbook directory including the berksfile.lock file
+//         bat "del Berksfile.lock"
+//       }
 
-      dir(cookbookDirectory) {
-        bat "chef exec cookstyle ."
-      }
-      currentBuild.result = 'SUCCESS'
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-      throw err
-    }
-  }
-}
+//       dir(cookbookDirectory) {
+//         bat "chef exec cookstyle ."
+//       }
+//       currentBuild.result = 'SUCCESS'
+//     }
+//     catch(err) {
+//       currentBuild.result = 'FAILED'
+//       throw err
+//     }
+//   }
+// }
 
-stage('Unit Testing') {
-  node {
-    try {
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory) {
-        bat "berks install"
-        bat "chef exec rspec ."
-      }
-      currentBuild.result = 'SUCCESS'
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-      throw err
-    }
-  }
+// stage('Unit Testing') {
+//   node {
+//     try {
+//       fetch(scm, cookbookDirectory, currentBranch)
+//       dir(cookbookDirectory) {
+//         bat "berks install"
+//         bat "chef exec rspec ."
+//       }
+//       currentBuild.result = 'SUCCESS'
+//     }
+//     catch(err) {
+//       currentBuild.result = 'FAILED'
+//       throw err
+//     }
+//   }
 }
 
 stage('Versioning') {
@@ -65,7 +65,11 @@ stage('Versioning') {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
-        bat "git diff --name-only $GIT_PREVIOUS_COMMIT $GIT_COMMIT"
+        stdout = bat(returnStdout: true, script: """
+            @echo off
+            git diff --name-only $GIT_PREVIOUS_COMMIT $GIT_COMMIT
+          """
+        )
       }
       currentBuild.result = 'SUCCESS'
     }
