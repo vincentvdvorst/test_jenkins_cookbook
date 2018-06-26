@@ -65,13 +65,15 @@ stage('Versioning') {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
-        stdout = bat(returnStdout: true, script: """
+        changed_files = bat(returnStdout: true, script: """
             @echo off
             git diff --name-only master
           """
-        )
-        String[] test = stdout.trim().split()
-        println test.size()
+        ).trim().split()
+        for(file in changed_files) {
+          println file
+        }
+        
       }
       currentBuild.result = 'SUCCESS'
     }
