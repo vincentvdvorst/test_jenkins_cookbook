@@ -19,7 +19,7 @@ def fetch(scm, cookbookDirectory, currentBranch){
 }
 
 stage('Linting') {
-  node('windows') {
+  node {
 
     echo "cookbook: ${cookbook}"
     echo "current branch: ${currentBranch}"
@@ -45,7 +45,7 @@ stage('Linting') {
 }
 
 stage('Unit Testing'){
-  node('windows') {
+  node {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
@@ -62,7 +62,7 @@ stage('Unit Testing'){
 }
 
 stage('Functional (Kitchen)') {
-  node('kitchen') {
+  node {
     try{
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
@@ -88,7 +88,7 @@ stage('Functional (Kitchen)') {
 }
 
 stage('Publishing') {
-  node('kitchen') {
+  node {
     try{
       dir(cookbookDirectory) {
         echo "#TODO: Add tasks for publishing here."
@@ -102,7 +102,7 @@ stage('Publishing') {
 }
 
 stage('Clean up') {
-  node('kitchen') {
+  node {
     try{
       dir(cookbookDirectory) {
         echo "#TODO: Add tasks for clean up here."
