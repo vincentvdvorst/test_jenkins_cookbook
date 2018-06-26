@@ -34,7 +34,7 @@ stage('Linting') {
       bat "chef exec cookstyle ."
     }
     currentBuild.result = 'SUCCESS'
-}
+  }
 }
 
 stage('Unit Testing'){
