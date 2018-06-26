@@ -1,4 +1,3 @@
-
 # # encoding: utf-8
 
 # Inspec test for recipe test_jenkins_cookbook::default
