@@ -6,7 +6,6 @@ driver:
   subnet_id: subnet-13a42677
   instance_type: t2.small
   interface: private
-  iam_profile_name: GS-FullAdmin
   tags:
     Name: 'chef_automate_test_instance_gs_role_shippingservice'
     StackColor: 'Green'

@@ -25,7 +25,10 @@ node {
   } finally {
     stage('cleanup') {
       // deleteDir()
-      bat "kitchen destroy"
+      bat '''
+        set KITCHEN_YAML=.kitchen.jenkins.yml
+        kitchen destroy
+      '''
       echo "Testing"
     }
   }
