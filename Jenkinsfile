@@ -6,8 +6,8 @@ node {
     stage('prepare') {
       bat "git clean -fdx"
     }
-    stage('compile') {
-      echo "Testing"
+    stage('Chef Linting') {
+      bat "chef exec cookstyle ."
     }
     stage('test') {
       echo "Testing"
