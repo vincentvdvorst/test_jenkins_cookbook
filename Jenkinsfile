@@ -70,10 +70,7 @@ stage('Versioning') {
             git diff --name-only master
           """
         )
-        stdout.eachLine { line, count ->
-          println "line $count: $line"
-        }
-        println stdout
+        String lines[] =  stdout.split("\\r?\\n")
       }
       currentBuild.result = 'SUCCESS'
     }
