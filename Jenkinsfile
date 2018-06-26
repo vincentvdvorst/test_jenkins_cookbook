@@ -1,7 +1,6 @@
 node {
   try {
     stage('Prepare') {
-      deleteDir()
       checkout scm
     }
     stage('Chef Linting') {
@@ -18,6 +17,7 @@ node {
     }
   } finally {
     stage('cleanup') {
+      deleteDir()
       echo "Testing"
     }
   }
