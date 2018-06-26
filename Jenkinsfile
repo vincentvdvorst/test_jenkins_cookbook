@@ -24,16 +24,22 @@ stage('Linting') {
     echo "cookbook: ${cookbook}"
     echo "current branch: ${currentBranch}"
     echo "checkout directory: ${cookbookDirectory}"
-    fetch(scm, cookbookDirectory, currentBranch)
-    dir(cookbookDirectory){
-      // clean out any old artifacts from the cookbook directory including the berksfile.lock file
-      bat "del Berksfile.lock"
-    }
+    try{
+      fetch(scm, cookbookDirectory, currentBranch)
+      dir(cookbookDirectory){
+        // clean out any old artifacts from the cookbook directory including the berksfile.lock file
+        bat "del Berksfile.lock"
+      }
 
-    dir(cookbookDirectory) {
-      bat "chef exec cookstyle ."
+      dir(cookbookDirectory) {
+        bat "chef exec cookstyle ."
+      }
+      currentBuild.result = 'SUCCESS'
     }
-    currentBuild.result = 'SUCCESS'
+    catch(err){
+      currentBuild.result = 'FAILED'
+      throw err
+    }
   }
 }
 
