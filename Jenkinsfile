@@ -13,11 +13,13 @@ node {
       bat "chef exec rspec"
     }
     stage('Chef Integration Testing') {
+      def workspace = pwd()
+      echo "${workspace}"
       echo "Starting Kitchen tests, this may take awhile."
-      bat '''
-        set KITCHEN_YAML=.kitchen.jenkins.yml
+      bat """
+        set KITCHEN_YAML=${workspace}/.kitchen.jenkins.yml
         kitchen verify
-      '''
+      """
     }
     stage('publish') {
       echo "Testing"
