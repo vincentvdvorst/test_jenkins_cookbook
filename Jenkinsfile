@@ -32,9 +32,7 @@ stage('Linting') {
       }
 
      dir(cookbookDirectory) {
-        try {
-          bat "chef exec cookstyle ."
-        }
+        bat "chef exec cookstyle ."
       }
       currentBuild.result = 'SUCCESS'
     }
