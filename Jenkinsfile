@@ -38,7 +38,6 @@ stage('Linting') {
     }
     catch(err){
       currentBuild.result = 'FAILED'
-      notify_stash(building_pull_request)
       throw err
     }
   }
