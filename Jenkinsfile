@@ -73,6 +73,7 @@ stage('Versioning') {
         stdout.eachLine {
           println it
         }
+        println stdout
       }
       currentBuild.result = 'SUCCESS'
     }
