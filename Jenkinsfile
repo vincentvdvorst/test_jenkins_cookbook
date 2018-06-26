@@ -83,6 +83,7 @@ stage('Versioning') {
           """
         ).trim().split()
         println VERSION_BUMP_REQUIRED
+        println changed_files
       }
       currentBuild.result = 'SUCCESS'
     }
