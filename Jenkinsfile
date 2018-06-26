@@ -67,7 +67,7 @@ stage('Versioning') {
       dir(cookbookDirectory) {
         stdout = bat(returnStdout: true, script: """
             @echo off
-            git diff --name-only $GIT_PREVIOUS_COMMIT $GIT_COMMIT
+            git diff --name-only master
           """
         )
         echo stdout
