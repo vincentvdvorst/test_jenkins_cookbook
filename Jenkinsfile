@@ -5,7 +5,7 @@ def currentBranch = env.BRANCH_NAME
 
 def cookbookDirectory = "D:/cookbooks/${cookbook}"
 
-def fetch(scm, cookbookDirectory, currentBranch){
+def fetch(scm, cookbookDirectory, currentBranch) {
   checkout([$class: 'GitSCM',
     branches: scm.branches,
     doGenerateSubmoduleConfigurations: scm.doGenerateSubmoduleConfigurations,
@@ -24,7 +24,7 @@ stage('Linting') {
     echo "cookbook: ${cookbook}"
     echo "current branch: ${currentBranch}"
     echo "checkout directory: ${cookbookDirectory}"
-    try{
+    try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory){
         // clean out any old artifacts from the cookbook directory including the berksfile.lock file
@@ -36,24 +36,24 @@ stage('Linting') {
       }
       currentBuild.result = 'SUCCESS'
     }
-    catch(err){
+    catch(err) {
       currentBuild.result = 'FAILED'
       throw err
     }
   }
 }
 
-stage('Unit Testing'){
+stage('Unit Testing') {
   node {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
         bat "berks install"
         bat "chef exec rspec ."
-        currentBuild.result = 'SUCCESS'
       }
+      currentBuild.result = 'SUCCESS'
     }
-    catch(err){
+    catch(err) {
       currentBuild.result = 'FAILED'
       throw err
     }
@@ -62,17 +62,18 @@ stage('Unit Testing'){
 
 stage('Functional (Kitchen)') {
   node {
-    try{
+    try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
        bat '''
           set KITCHEN_YAML=.kitchen.jenkins.yml
+          set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
           kitchen verify
         '''
       }
       currentBuild.result = 'SUCCESS'
     }
-    catch(err){
+    catch(err) {
       currentBuild.result = 'FAILED'
     }
     finally {
@@ -102,13 +103,13 @@ stage('Publishing') {
 
 stage('Clean up') {
   node {
-    try{
+    try {
       dir(cookbookDirectory) {
         echo "#TODO: Add tasks for clean up here."
         currentBuild.result = 'SUCCESS'
       }
     }
-    catch(err){
+    catch(err) {
       currentBuild.result = 'FAILED'
     }
   }
