@@ -1,0 +1,22 @@
+{
+  "name": "acceptance",
+  "json_class": "Chef::Environment",
+  "chef_type": "environment",
+  "default_attributes": {
+    "software_bucket": "gs-us1-prod-software",
+    "bucket" : "gs-us1-prod-automation-chef",
+    "software-bucket" : "gs-us1-prod-software",
+    "credentials-bucket" : "gs-us1-prod-credentials-store",
+    "artifacts-bucket" : "gs-us1-prod-software-artifacts",
+    "software-packages-folder" : "/software/",
+    "validation-key-file" : "/chef/common/keys/chef-validator.pem",
+    "chef-client-configuration-file" : "/chef/common/scripts/client.rb",
+    "chef-solo-linux-configuration-file" : "/chef/linux/scripts/chef-solo-config.rb",
+    "chef-solo-windows-configuration-file" : "/chef/windows/scripts/chef-solo-config.rb",
+    "chef-jenkins-admin-key-file" : "/chef/common/keys/jenkins.pem",
+    "cylance_token" : "Fxoh1SJ5L9T2Xu8h9Ai8Wh1k",
+    "jenkins-server" : {
+      "job_dir" : "ProdJobs"
+    }
+  }
+}
