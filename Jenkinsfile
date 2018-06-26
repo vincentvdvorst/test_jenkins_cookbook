@@ -70,7 +70,9 @@ stage('Versioning') {
             git diff --name-only master
           """
         )
-        echo stdout
+        stdout.eachline {
+          echo it
+        }
       }
       currentBuild.result = 'SUCCESS'
     }
