@@ -70,8 +70,8 @@ stage('Versioning') {
             git diff --name-only master
           """
         )
-        stdout.eachLine {
-          println it
+        stdout.eachLine { line, count ->
+          println "line $count: $line"
         }
         println stdout
       }
