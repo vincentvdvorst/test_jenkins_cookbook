@@ -86,7 +86,7 @@ stage('Versioning') {
         println changed_files
         if (changed_files.contains('metadata.rb')) {
           metadata_lines = bat(returnStdout: true, script: "git diff --unified=0 --no-color master:metadata.rb metadata.rb").trim().split()
-          version_changes = metadata_lines.findAll { it.contains('version')}
+          version_changes = metadata_lines.findAll { item -> item.contains('version')}
           println version_changes
         }
       }
