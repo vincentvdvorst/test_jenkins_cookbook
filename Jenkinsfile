@@ -70,7 +70,7 @@ stage('Versioning') {
             git diff --name-only master
           """
         )
-        String lines[] =  stdout.split("\\r?\\n")
+        List lines =  stdout.split("\\r?\\n")
       }
       currentBuild.result = 'SUCCESS'
     }
