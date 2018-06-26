@@ -4,7 +4,7 @@ node {
       checkout scm
     }
     stage('prepare') {
-      sh "git clean -fdx"
+      bat "git clean -fdx"
     }
     stage('compile') {
       echo "Testing"
