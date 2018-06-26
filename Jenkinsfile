@@ -84,6 +84,7 @@ stage('Versioning') {
         ).trim().split()
         println VERSION_BUMP_REQUIRED
         println changed_files
+        println changed_files.contains('metadata.rb')
       }
       currentBuild.result = 'SUCCESS'
     }
