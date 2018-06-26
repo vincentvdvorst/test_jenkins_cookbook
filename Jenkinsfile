@@ -3,6 +3,18 @@ def cookbook = 'test_jenkins_cookbook'
 def stableBranch = 'master'
 def currentBranch = env.BRANCH_NAME
 
+def VERSION_BUMP_REQUIRED = [
+  "Berksfile",
+  "Berksfile.lock",
+  "Policyfile.rb",
+  "Policyfile.lock.json",
+  "recipes/.*",
+  "attributes/.*",
+  "libraries/.*",
+  "files/.*",
+  "templates/."
+]
+
 def cookbookDirectory = "D:/cookbooks/${cookbook}"
 
 def fetch(scm, cookbookDirectory, currentBranch) {
@@ -70,10 +82,7 @@ stage('Versioning') {
             git diff --name-only master
           """
         ).trim().split()
-        for(file in changed_files) {
-          println file
-        }
-        
+        println VERSION_BUMP_REQUIRED
       }
       currentBuild.result = 'SUCCESS'
     }
