@@ -1,7 +1,7 @@
 ---
 driver:
   name: ec2
-  security_group_ids: [sg-c8e18283']
+  security_group_ids: ['sg-c8e18283']
   region: us-east-1
   subnet_id: subnet-13a42677
   instance_type: t2.small
