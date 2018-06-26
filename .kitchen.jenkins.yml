@@ -1,0 +1,42 @@
+---
+driver:
+  name: ec2
+  security_group_ids: [sg-c8e18283']
+  region: us-east-1
+  subnet_id: subnet-13a42677
+  instance_type: t2.small
+  interface: private
+  iam_profile_name: GS-BuildRole
+  tags:
+    Name: 'chef_automate_test_instance_gs_role_shippingservice'
+    StackColor: 'Green'
+
+transport:
+  connection_timeout: 10
+  connection_retries: 5
+
+provisioner:
+  name: chef_zero
+  product_version: 14.1
+  require_chef_omnibus: 14.1
+  environments_path: test/environments
+  max_retries: 3 # tweak in conjunction with below
+  wait_for_retry: 90 # tweak based on machine shutdown speed
+  retry_on_exit_code:
+    - 1 # general error
+    - 35 # chef-client's reboot scheduled exit status
+  client_rb:
+    environment: acceptance
+    exit_status: :enabled # default in 13+
+    client_fork: false # don't fork so we get true exit code
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: windows-2012r2
+
+suites:
+  - name: default
+    run_list:
+      - recipe[test_jenkins_cookbook::default]

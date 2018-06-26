@@ -1,0 +1,43 @@
+---
+driver:
+  name: ec2
+  security_group_ids: ['sg-79f5090f', 'sg-12867a64']
+  region: us-east-1
+  subnet_id: subnet-c46b05b2
+  instance_type: t2.small
+  interface: private
+  iam_profile_name: chefdeliverytest
+  tags:
+    Name: 'chef_automate_test_instance_gs_role_shippingservice'
+    StackColor: 'Green'
+
+transport:
+  ssh_key: <%= ENV['KITCHEN_EC2_SSH_KEY_PATH'] %>
+  connection_timeout: 10
+  connection_retries: 5
+
+provisioner:
+  name: chef_zero
+  product_version: 14.1
+  require_chef_omnibus: 14.1
+  environments_path: test/environments
+  max_retries: 3 # tweak in conjunction with below
+  wait_for_retry: 90 # tweak based on machine shutdown speed
+  retry_on_exit_code:
+    - 1 # general error
+    - 35 # chef-client's reboot scheduled exit status
+  client_rb:
+    environment: acceptance
+    exit_status: :enabled # default in 13+
+    client_fork: false # don't fork so we get true exit code
+
+verifier:
+  name: inspec
+
+platforms:
+  - name: windows-2012r2
+
+suites:
+  - name: default
+    run_list:
+      - recipe[gs_role_shippingservice::default]

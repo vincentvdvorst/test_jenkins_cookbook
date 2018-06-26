@@ -1,4 +1,7 @@
 node {
+  environment {
+    KITCHEN_YAML = '.kitchen.jenkins.yml'
+  }
   try {
     stage('Prepare') {
       checkout scm
@@ -7,11 +10,11 @@ node {
       bat "chef exec cookstyle ."
     }
     stage('Chef Unit Testing') {
-      bat "delivery local unit"
       bat "chef exec rspec"
     }
-    stage('package') {
-      echo "Testing"
+    stage('Chef Integration Testing') {
+      echo "Starting Kitchen tests, this may take awhile."
+      bat "kitchen verify"
     }
     stage('publish') {
       echo "Testing"
@@ -19,6 +22,7 @@ node {
   } finally {
     stage('cleanup') {
       // deleteDir()
+      bat "kitchen destroy"
       echo "Testing"
     }
   }
