@@ -87,9 +87,14 @@ stage('Versioning') {
         if (changed_files.contains('metadata.rb')) {
           metadata_lines = bat(returnStdout: true, script: "git diff --unified=0 --no-color master:metadata.rb metadata.rb").split('\n')
           for (line in metadata_lines) {
-            if (line ==~ /^(\+|\-)version.*/) {
-              println line
+            if (line ==~ /^\-version.*/) {
+              old_version = line
             }
+            if (line ==~ /^\+version.*/) {
+              new_version = line
+            }
+            println "Old version: ${old_version}"
+            println "New version: ${new_version}"
           }
         }
       }
