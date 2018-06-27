@@ -101,7 +101,7 @@ stage('Versioning') {
         ).trim().split()
 
         version_has_been_bumped = false
-        version_bum_required = false
+        version_bump_required = false
 
         // def VERSION_BUMP_REQUIRED = [
         //   "Berksfile",
@@ -116,7 +116,9 @@ stage('Versioning') {
         // ]
 
         for (file in changed_files) {
-          println file
+          if ( file ==~ /files\/.*/ || file ==~ /recipes\/.*/ || file ==~ /attributes\/.*/ || file ==~ /libraries\/.*/ || file ==~ /templates\/.*/) {
+            version_bump_required = true
+          }
         }
 
         if (changed_files.contains('metadata.rb')) {
