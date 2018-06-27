@@ -74,9 +74,9 @@ class SemVer {
 stage('Versioning') {
   node {
     try {
+      fetch(scm, cookbookDirectory, stableBranch)
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
-        bat "git fetch origin master"
         changed_files = bat(returnStdout: true, script: """
             @echo off
             git diff --name-only master
