@@ -243,6 +243,7 @@ stage('Pinning in QA') {
         }
       }
       catch(err){
+        println err.getMessage()
         currentBuild.result = 'FAILED'
       }
     } else {
