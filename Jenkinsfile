@@ -240,8 +240,8 @@ stage('Pinning in QA') {
             throw new Exception("Please ensure your target environment exists on the Chef server.")
           }
 
-          def jsonSlurper = new JsonSlurper()
-          def jsonData = readFile "${chefRepo}/environments/${qaEnvironment}.json"
+          // def jsonSlurper = new JsonSlurper()
+          def jsonData = readJSON "${chefRepo}/environments/${qaEnvironment}.json"
           println jsonData
           // def data = jsonSlurper.parseText(jsonData)
 
