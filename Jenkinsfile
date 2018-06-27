@@ -8,6 +8,8 @@ def currentBranch = env.BRANCH_NAME
 def qaEnvironment = 'qa'
 def prodEnvironment = 'prod'
 
+def versionPinOperator = "<="
+
 def VERSION_BUMP_REQUIRED = [
   "Berksfile",
   "Berksfile.lock",
@@ -227,17 +229,21 @@ stage('Pinning in QA') {
 
           println environments.join(":")
 
-          if (environments.contains(qaEnvironment)) {
-            println "Environment already exists on Chef server"
-            bat "knife download environments/${qaEnvironment}.json"
-          } else {
-            println "Environment does not exist on Chef server"
-            def builder = new JsonBuilder()
-            builder name: qaEnvironment
-            json = builder.toPrettyString()
+          step('Download environment file.') {
+            if (environments.contains(qaEnvironment)) {
+              println "Environment already exists on Chef server, downloading..."
+              bat "knife download environments/${qaEnvironment}.json"
+            } else {
+              throw new Exception("Please ensure your target environment exists on the Chef server.")
+            }
+          }
 
-            println json
-            new File(chefRepo + "/environments/${qaEnvironment}.json").write(json)
+          step('Update environment file.') {
+            def jsonSlurper = new JsonSlurper()
+            def data = jsonSlurper.parseText(new File("./environments/${qaEnvironment}.json").text)
+            println '##################'
+            println data.name
+            println '##################'
           }
           currentBuild.result = 'SUCCESS'
         }
