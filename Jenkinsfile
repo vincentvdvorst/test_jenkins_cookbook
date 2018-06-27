@@ -151,7 +151,7 @@ stage('Versioning') {
     }
     catch(err) {
       currentBuild.result = 'FAILED'
-      echo err.getMessage()
+      error err.getMessage()
       throw err
     }
   }
