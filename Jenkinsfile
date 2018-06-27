@@ -7,12 +7,7 @@ def VERSION_BUMP_REQUIRED = [
   "Berksfile",
   "Berksfile.lock",
   "Policyfile.rb",
-  "Policyfile.lock.json",
-  "recipes/.*",
-  "attributes/.*",
-  "libraries/.*",
-  "files/.*",
-  "templates/."
+  "Policyfile.lock.json"
 ]
 
 def cookbookDirectory = "D:/cookbooks/${cookbook}"
@@ -118,8 +113,10 @@ stage('Versioning') {
         for (file in changed_files) {
           if ( file ==~ /files\/.*/ || file ==~ /recipes\/.*/ || file ==~ /attributes\/.*/ || file ==~ /libraries\/.*/ || file ==~ /templates\/.*/) {
             version_bump_required = true
+          } else if ( VERSION_BUMP_REQUIRED.contains(file)) {
+            println file
+            version_bump_required = true
           }
-          println file
         }
 
         if (changed_files.contains('metadata.rb')) {
