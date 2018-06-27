@@ -48,9 +48,9 @@ class SemVer {
       this.minor = minor
       this.patch = patch
     }
-    catch(err) [
+    catch(err) {
       throw new Exception("This constructor expects 3 integer values for major, minor and patch versions")
-    ]
+    }
   }
 
   def isNewerThan(other) {
