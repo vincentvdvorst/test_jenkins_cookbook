@@ -253,7 +253,7 @@ stage('Pinning in QA') {
             }
           }
 
-          data['cookbook_versions'][cookbook] = "${pinOperator} ${version.toString()}"
+          data['cookbook_versions'][cookbook] = "${versionPinOperator} ${version.toString()}"
           println '##################'
           println data.name
           println data['cookbook_versions'][cookbook]
