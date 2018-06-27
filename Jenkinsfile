@@ -243,10 +243,10 @@ stage('Pinning in QA') {
           def metadata_lines = readFile "${cookbookDirectory}/metadata.rb"
 
           for (line in metadata_lines.split("\n")) {
-            // if (line ==~ /^version.*/) {
-              // version = new SemVer(line.split(" ")[1].replace("\'", ""))
-              println line
-            // }
+            if (line ==~ /^version.*/) {
+              version = new SemVer(line.split(" ")[1].replace("\'", ""))
+              println version
+            }
           }
 
           // if (data.containsKey('cookbook_versions')){
