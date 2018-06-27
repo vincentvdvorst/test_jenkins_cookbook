@@ -242,6 +242,7 @@ stage('Pinning in QA') {
 
           def jsonSlurper = new JsonSlurper()
           def jsonData = readFile "${chefRepo}/environments/${qaEnvironment}.json"
+          println jsonData
           def data = jsonSlurper.parseText(jsonData)
 
           version = new SemVer('0.0.0')
