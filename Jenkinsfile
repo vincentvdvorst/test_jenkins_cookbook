@@ -42,147 +42,139 @@ class SemVer {
   }
 }
 
-// stage('Linting') {
-//   node {
+stage('Basic Checks') {
+  parallel {
+    stage('Versioning') {
+      node {
+        try {
+          fetch(scm, cookbookDirectory, currentBranch)
+          dir(cookbookDirectory) {
+            changed_files = bat(returnStdout: true, script: """
+                @echo off
+                git diff --name-only master
+              """
+            ).trim().split()
 
-//     echo "cookbook: ${cookbook}"
-//     echo "current branch: ${currentBranch}"
-//     echo "checkout directory: ${cookbookDirectory}"
-//     try {
-//       fetch(scm, cookbookDirectory, currentBranch)
-//       dir(cookbookDirectory){
-//         // clean out any old artifacts from the cookbook directory including the berksfile.lock file
-//         bat "del Berksfile.lock"
-//       }
+            version_has_been_bumped = false
+            version_bump_required = false
 
-//       dir(cookbookDirectory) {
-//         bat "chef exec cookstyle ."
-//       }
-//       currentBuild.result = 'SUCCESS'
-//     }
-//     catch(err) {
-//       currentBuild.result = 'FAILED'
-//       throw err
-//     }
-//   }
-// }
+            for (file in changed_files) {
+              if ( file ==~ /files\/.*/ || file ==~ /recipes\/.*/ || file ==~ /attributes\/.*/ || file ==~ /libraries\/.*/ || file ==~ /templates\/.*/) {
+                version_bump_required = true
+              } else if ( VERSION_BUMP_REQUIRED.contains(file)) {
+                println file
+                version_bump_required = true
+              }
+            }
 
-// stage('Unit Testing') {
-//   node {
-//     try {
-//       fetch(scm, cookbookDirectory, currentBranch)
-//       dir(cookbookDirectory) {
-//         bat "berks install"
-//         bat "chef exec rspec ."
-//       }
-//       currentBuild.result = 'SUCCESS'
-//     }
-//     catch(err) {
-//       currentBuild.result = 'FAILED'
-//       throw err
-//     }
-//   }
-// }
+            if (changed_files.contains('metadata.rb')) {
+              metadata_lines = bat(returnStdout: true, script: "git diff --unified=0 --no-color master:metadata.rb metadata.rb").split('\n')
+              old_version = ""
+              new_version = ""
+              for (line in metadata_lines) {
+                if (line ==~ /^(\+|\-)version.*/) {
+                  if (line ==~ /^\-version.*/) {
+                    old_version = line.split(" ")[1].replace("\'", "")
+                  }
+                  if (line ==~ /^\+version.*/) {
+                    new_version = line.split(" ")[1].replace("\'", "")
+                  }
+                }
+              }
+              oldSemVer = new SemVer(old_version)
+              newSemVer = new SemVer(new_version)
 
-stage('Versioning') {
+              if (!newSemVer.isNewerThan(oldSemVer)) {
+                throw new Exception("The version that has been set is not newer than the previous version.")
+              } else {
+                version_has_been_bumped = true
+              }
+            }
+          }
+          
+          if (version_bump_required && !version_has_been_bumped) {
+            throw new Exception("Changes have been made that require a version update.")
+          }
+          currentBuild.result = 'SUCCESS'
+        }
+        catch(err) {
+          currentBuild.result = 'FAILED'
+          error err.getMessage()
+          throw err
+        }
+      }
+    }
+
+    stage('Linting') {
+      node {
+
+        echo "cookbook: ${cookbook}"
+        echo "current branch: ${currentBranch}"
+        echo "checkout directory: ${cookbookDirectory}"
+        try {
+          fetch(scm, cookbookDirectory, currentBranch)
+          dir(cookbookDirectory){
+            // clean out any old artifacts from the cookbook directory including the berksfile.lock file
+            bat "del Berksfile.lock"
+          }
+
+          dir(cookbookDirectory) {
+            bat "chef exec cookstyle ."
+          }
+          currentBuild.result = 'SUCCESS'
+        }
+        catch(err) {
+          currentBuild.result = 'FAILED'
+          throw err
+        }
+      }
+    }
+
+    stage('Unit Testing') {
+      node {
+        try {
+          fetch(scm, cookbookDirectory, currentBranch)
+          dir(cookbookDirectory) {
+            bat "berks install"
+            bat "chef exec rspec ."
+          }
+          currentBuild.result = 'SUCCESS'
+        }
+        catch(err) {
+          currentBuild.result = 'FAILED'
+          throw err
+        }
+      }
+    }
+  }
+}
+
+stage('Functional (Kitchen)') {
   node {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
-        changed_files = bat(returnStdout: true, script: """
-            @echo off
-            git diff --name-only master
-          """
-        ).trim().split()
-
-        version_has_been_bumped = false
-        version_bump_required = false
-
-        // def VERSION_BUMP_REQUIRED = [
-        //   "Berksfile",
-        //   "Berksfile.lock",
-        //   "Policyfile.rb",
-        //   "Policyfile.lock.json",
-        //   "recipes/.*",
-        //   "attributes/.*",
-        //   "libraries/.*",
-        //   "files/.*",
-        //   "templates/."
-        // ]
-
-        for (file in changed_files) {
-          if ( file ==~ /files\/.*/ || file ==~ /recipes\/.*/ || file ==~ /attributes\/.*/ || file ==~ /libraries\/.*/ || file ==~ /templates\/.*/) {
-            version_bump_required = true
-          } else if ( VERSION_BUMP_REQUIRED.contains(file)) {
-            println file
-            version_bump_required = true
-          }
-        }
-
-        if (changed_files.contains('metadata.rb')) {
-          metadata_lines = bat(returnStdout: true, script: "git diff --unified=0 --no-color master:metadata.rb metadata.rb").split('\n')
-          old_version = ""
-          new_version = ""
-          for (line in metadata_lines) {
-            if (line ==~ /^(\+|\-)version.*/) {
-              if (line ==~ /^\-version.*/) {
-                old_version = line.split(" ")[1].replace("\'", "")
-              }
-              if (line ==~ /^\+version.*/) {
-                new_version = line.split(" ")[1].replace("\'", "")
-              }
-            }
-          }
-          oldSemVer = new SemVer(old_version)
-          newSemVer = new SemVer(new_version)
-
-          if (!newSemVer.isNewerThan(oldSemVer)) {
-            throw new Exception("The version that has been set is not newer than the previous version.")
-          } else {
-            version_has_been_bumped = true
-          }
-        }
-      }
-      
-      if (version_bump_required && !version_has_been_bumped) {
-        throw new Exception("Changes have been made that require a version update.")
+       bat '''
+          set KITCHEN_YAML=.kitchen.jenkins.yml
+          set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
+          kitchen verify
+        '''
       }
       currentBuild.result = 'SUCCESS'
     }
     catch(err) {
       currentBuild.result = 'FAILED'
-      error err.getMessage()
-      throw err
+    }
+    finally {
+      dir(cookbookDirectory) {
+        bat '''
+          set KITCHEN_YAML=.kitchen.jenkins.yml
+          kitchen destroy
+        '''
+      }
     }
   }
 }
-
-// stage('Functional (Kitchen)') {
-//   node {
-//     try {
-//       fetch(scm, cookbookDirectory, currentBranch)
-//       dir(cookbookDirectory) {
-//        bat '''
-//           set KITCHEN_YAML=.kitchen.jenkins.yml
-//           set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
-//           kitchen verify
-//         '''
-//       }
-//       currentBuild.result = 'SUCCESS'
-//     }
-//     catch(err) {
-//       currentBuild.result = 'FAILED'
-//     }
-//     finally {
-//       dir(cookbookDirectory) {
-//         bat '''
-//           set KITCHEN_YAML=.kitchen.jenkins.yml
-//           kitchen destroy
-//         '''
-//       }
-//     }
-//   }
-// }
 
 stage('Publishing') {
   node {
