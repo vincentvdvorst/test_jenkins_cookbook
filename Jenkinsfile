@@ -249,17 +249,17 @@ stage('Pinning in QA') {
             }
           }
 
-          // if (data.containsKey('cookbook_versions')){
+          if (jsonData.containsKey('cookbook_versions')){
 
-          // } else {
-          //   cookbookVersionsMap = []
-          // }
+          } else {
+            cookbookVersionsMap = [cookbook: "${versionPinOperator} ${version.toString()}"]
+          }
 
           // data['cookbook_versions'][cookbook] = "${versionPinOperator} ${version.toString()}"
-          // println '##################'
+          println '##################'
           // println data.name
-          // println data['cookbook_versions'][cookbook]
-          // println '##################'
+          println jsonData
+          println '##################'
 
           currentBuild.result = 'SUCCESS'
         }
