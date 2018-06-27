@@ -98,8 +98,8 @@ stage('Versioning') {
               }
             }
           }
-          println "Old version: ${old_version}"
-          println "New version: ${new_version}"
+          println "Old version: ${old_version.split(".")}"
+          println "New version: ${new_version.split(".")}"
         }
       }
       currentBuild.result = 'SUCCESS'
