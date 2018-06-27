@@ -7,13 +7,13 @@ driver:
   instance_type: t2.small
   interface: private
   iam_profile_name: JenkinsBuilder
-  aws_ssh_key_id: vvdvorst-us-east-1-sandbox
+  # aws_ssh_key_id: vvdvorst-us-east-1-sandbox
   tags:
     Name: 'chef_jenkins_test'
     StackColor: 'Green'
 
 transport:
-  ssh_key: <%= ENV['KITCHEN_EC2_SSH_KEY_PATH'] %>
+  # ssh_key: <%= ENV['KITCHEN_EC2_SSH_KEY_PATH'] %>
   connection_timeout: 10
   connection_retries: 5
 
