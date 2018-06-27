@@ -255,13 +255,12 @@ stage('Pinning in QA') {
             def cookbookVersionsMap = [:]
             jsonData['cookbook_versions'] = [:]
             jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
-            // cookbookVersionsMap[cookbook] = "${versionPinOperator} ${version.toString()}"
-            // jsonData['cookbook_versions'] = cookbookVersionsMap
           }
-          println '##################'
-          // println data.name
-          println jsonData
-          println '##################'
+          
+          readJSON file: "${chefRepo}/environments/${qaEnvironment}.json"
+          writeJSON file: "${chefRepo}/environments/${qaEnvironment}.json", jsonData: input, pretty:2
+
+          bat "knife environment from file ${chefRepo}/environments/${qaEnvironment}.json"
 
           currentBuild.result = 'SUCCESS'
         }
