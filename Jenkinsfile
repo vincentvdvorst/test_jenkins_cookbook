@@ -192,6 +192,7 @@ stage('Functional (Kitchen)') {
     }
     catch(err) {
       currentBuild.result = 'FAILED'
+      throw err
     }
     finally {
       dir(cookbookDirectory) {
@@ -216,6 +217,7 @@ stage('Publishing') {
       }
       catch(err){
         currentBuild.result = 'FAILED'
+        throw err
       }
     } else {
       echo "Skipping Publishing stage"
@@ -362,6 +364,7 @@ stage('Clean up') {
     }
     catch(err) {
       currentBuild.result = 'FAILED'
+      throw err
     }
   }
 }
