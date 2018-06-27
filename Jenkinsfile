@@ -245,6 +245,7 @@ stage('Pinning in QA') {
       catch(err){
         println err.getMessage()
         currentBuild.result = 'FAILED'
+        throw err
       }
     } else {
       echo "Skipping Publishing stage"
