@@ -74,6 +74,7 @@ class SemVer {
 stage('Versioning') {
   node {
     try {
+      fetch(scm, cookbookDirectory, stableBranch)
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
         changed_files = bat(returnStdout: true, script: """
@@ -352,7 +353,10 @@ stage('Clean up') {
   node {
     try {
       dir(cookbookDirectory) {
-        
+        bat '''
+          set KITCHEN_YAML=.kitchen.jenkins.yml
+          kitchen destroy
+        '''
         currentBuild.result = 'SUCCESS'
       }
     }
