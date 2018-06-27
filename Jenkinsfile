@@ -241,12 +241,12 @@ stage('Pinning in QA') {
           }
 
           def jsonSlurper = new JsonSlurper()
-          def jsonData = readfile "${chefRepo}/environments/${qaEnvironment}.json"
+          def jsonData = readFile "${chefRepo}/environments/${qaEnvironment}.json"
           def data = jsonSlurper.parseText(jsonData)
 
           version = new SemVer('0.0.0')
 
-          def metadata_lines = readfile "${chefRepo}/environments/${qaEnvironment}.json"
+          def metadata_lines = readFile "${chefRepo}/environments/${qaEnvironment}.json"
 
           for (line in metadata_lines.split()) {
             if (line ==~ /^version.*/) {
