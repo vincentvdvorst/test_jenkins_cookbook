@@ -67,9 +67,9 @@ class SemVer {
     return false
   }
 
-  def toString() {
-    return "${this.major.toString()}.${this.minor.toString()}.${this.patch.toString()}"
-  }
+  // def toString() {
+  //   return "${this.major.toString()}.${this.minor.toString()}.${this.patch.toString()}"
+  // }
 }
 
 // stage('Versioning') {
