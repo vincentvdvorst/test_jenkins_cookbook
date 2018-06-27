@@ -5,7 +5,7 @@ def cookbook = 'test_jenkins_cookbook'
 def stableBranch = 'master'
 def currentBranch = env.BRANCH_NAME
 
-def qaEnvironment = 'qa'
+def qaEnvironment = '_default'
 def prodEnvironment = 'prod'
 
 def VERSION_BUMP_REQUIRED = [
@@ -272,7 +272,7 @@ stage('Clean up') {
   node {
     try {
       dir(cookbookDirectory) {
-        bat "kitchen destroy"
+        
         currentBuild.result = 'SUCCESS'
       }
     }
