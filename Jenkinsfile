@@ -110,6 +110,11 @@ stage('Versioning') {
           oldSemVer = new SemVer(old_version)
           newSemVer = new SemVer(new_version)
 
+          println "##########Versioning##########"
+          println oldSemVer
+          println newSemVer
+          println "##########Versioning##########"
+
           if (!newSemVer.isNewerThan(oldSemVer)) {
             throw new Exception("The version that has been set is not newer than the previous version.")
           } else {
