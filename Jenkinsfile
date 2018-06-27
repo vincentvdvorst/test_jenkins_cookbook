@@ -231,7 +231,7 @@ stage('Pinning in QA') {
             def builder = new JsonBuilder()
             builder name: qaEnvironment
             json = builder.toPrettyString()
-            new File(chefRepo  "/environments/${qaEnvironment}.json").write(json)
+            new File(chefRepo + "/environments/${qaEnvironment}.json").write(json)
           }
           currentBuild.result = 'SUCCESS'
         }
