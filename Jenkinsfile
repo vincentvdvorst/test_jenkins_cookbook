@@ -241,16 +241,23 @@ stage('Pinning in QA') {
           }
 
           def jsonSlurper = new JsonSlurper()
-          def data = jsonSlurper.parseText(new File("${chefRepo}/environments/${qaEnvironment}.json").text)
+          def jsonData = readfile "${chefRepo}/environments/${qaEnvironment}.json"
+          def data = jsonSlurper.parseText(jsonData)
 
           version = new SemVer('0.0.0')
 
-          def metadata_lines = new File("${chefRepo}/environments/${qaEnvironment}.json").text.split()
+          def metadata_lines = readfile "${chefRepo}/environments/${qaEnvironment}.json"
 
-          for (line in metadata_lines) {
+          for (line in metadata_lines.split()) {
             if (line ==~ /^version.*/) {
               version = new SemVer(line.split(" ")[1].replace("\'", ""))
             }
+          }
+
+          if (data.containsKey('cookbook_versions')){
+
+          } else {
+            cookbookVersionsMap = []
           }
 
           data['cookbook_versions'][cookbook] = "${versionPinOperator} ${version.toString()}"
