@@ -101,6 +101,23 @@ stage('Versioning') {
         ).trim().split()
 
         version_has_been_bumped = false
+        version_bum_required = false
+
+        // def VERSION_BUMP_REQUIRED = [
+        //   "Berksfile",
+        //   "Berksfile.lock",
+        //   "Policyfile.rb",
+        //   "Policyfile.lock.json",
+        //   "recipes/.*",
+        //   "attributes/.*",
+        //   "libraries/.*",
+        //   "files/.*",
+        //   "templates/."
+        // ]
+
+        for (file in changed_files) {
+          println file
+        }
 
         if (changed_files.contains('metadata.rb')) {
           metadata_lines = bat(returnStdout: true, script: "git diff --unified=0 --no-color master:metadata.rb metadata.rb").split('\n')
