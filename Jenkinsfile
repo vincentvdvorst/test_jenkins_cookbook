@@ -95,8 +95,8 @@ stage('Versioning') {
             if (line ==~ /^\+version.*/) {
               new_version = line
             }
-            println "Old version: ${old_version}"
-            println "New version: ${new_version}"
+            println "Old version: ${old_version.split()[1]}"
+            println "New version: ${new_version.split()[1]}"
           }
         }
       }
