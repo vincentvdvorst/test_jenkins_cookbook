@@ -245,7 +245,7 @@ stage('Pinning in QA') {
 
           version = new SemVer('0.0.0')
 
-          def metadata_lines = new File(cookbookDirectory, 'metadata.rb').as String[]
+          def metadata_lines = new File("${chefRepo}/environments/${qaEnvironment}.json").text.split()
 
           for (line in metadata_lines) {
             if (line ==~ /^version.*/) {
