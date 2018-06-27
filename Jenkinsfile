@@ -91,10 +91,10 @@ stage('Versioning') {
           for (line in metadata_lines) {
             if (line ==~ /^(\+|\-)version.*/) {
               if (line ==~ /^\-version.*/) {
-                old_version = line.split(" ")[1].replace("'", "").split(".")
+                old_version = line.split(" ")[1].replace("\'", "")
               }
               if (line ==~ /^\+version.*/) {
-                new_version = line.split(" ")[1].replace("'", "").split(".")
+                new_version = line.split(" ")[1].replace("\'", "")
               }
             }
           }
