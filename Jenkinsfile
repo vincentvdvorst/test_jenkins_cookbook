@@ -85,6 +85,8 @@ stage('Versioning') {
         version_has_been_bumped = false
         version_bump_required = false
 
+        println changed_files.join(" ")
+
         for (file in changed_files) {
           if ( file ==~ /files\/.*/ || file ==~ /recipes\/.*/ || file ==~ /attributes\/.*/ || file ==~ /libraries\/.*/ || file ==~ /templates\/.*/) {
             version_bump_required = true
