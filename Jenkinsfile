@@ -143,10 +143,10 @@ stage('Versioning') {
           }
         }
       }
-      println "################"
-      println version_has_been_bumped
-      println version_bump_required
-      println "################"
+      
+      if (version_bump_required && !version_has_been_bumped) {
+        throw new Exception("Changes have been made that require a version update.")
+      }
       currentBuild.result = 'SUCCESS'
     }
     catch(err) {

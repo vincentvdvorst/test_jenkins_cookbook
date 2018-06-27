@@ -5,7 +5,7 @@ maintainer_email 'you@example.com'
 license 'All Rights Reserved'
 description 'Installs/Configures test_jenkins_cookbook'
 long_description 'Installs/Configures test_jenkins_cookbook'
-version '0.1.1'
+version '0.1.0'
 chef_version '>= 12.14' if respond_to?(:chef_version)
 
 # The `issues_url` points to the location where issues for this cookbook are
@@ -19,4 +19,4 @@ chef_version '>= 12.14' if respond_to?(:chef_version)
 # a Supermarket.
 #
 # source_url 'https://github.com/<insert_org_here>/test_jenkins_cookbook'
-# and here, made a change
+# and here
