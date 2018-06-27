@@ -237,11 +237,11 @@ stage('Pinning in QA') {
           }
 
           def jsonSlurper = new JsonSlurper()
-          def data = jsonSlurper.parseText(new File("./environments/${qaEnvironment}.json").text)
+          def data = jsonSlurper.parseText(new File("${chefRepo}/environments/${qaEnvironment}.json").text)
           println '##################'
           println data.name
           println '##################'
-          
+
           currentBuild.result = 'SUCCESS'
         }
       }
