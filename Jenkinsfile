@@ -225,7 +225,7 @@ stage('Pinning in QA') {
             knife environment list
           """).trim().split()
 
-          println environments
+          println environments.join(":")
 
           if (environments.contains(qaEnvironment)) {
             println "Environment already exists on Chef server"
