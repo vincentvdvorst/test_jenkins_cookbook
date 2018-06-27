@@ -258,7 +258,7 @@ stage('Pinning in QA') {
           }
           
           readJSON file: "${chefRepo}/environments/${qaEnvironment}.json"
-          writeJSON file: "${chefRepo}/environments/${qaEnvironment}.json", jsonData: input, pretty:2
+          writeJSON file: "${chefRepo}/environments/${qaEnvironment}.json", json: jsonData, pretty:2
 
           bat "knife environment from file ${chefRepo}/environments/${qaEnvironment}.json"
 
