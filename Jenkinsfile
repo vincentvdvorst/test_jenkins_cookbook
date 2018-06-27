@@ -241,7 +241,7 @@ stage('Pinning in QA') {
           }
 
           // def jsonSlurper = new JsonSlurper()
-          def jsonData = readJSON "${chefRepo}/environments/${qaEnvironment}.json"
+          def jsonData = readJSON file: "${chefRepo}/environments/${qaEnvironment}.json"
           println jsonData
           // def data = jsonSlurper.parseText(jsonData)
 
