@@ -89,14 +89,16 @@ stage('Versioning') {
           for (line in metadata_lines) {
             old_version = ""
             new_version = ""
-            if (line ==~ /^\-version.*/) {
-              old_version = line
+            if (line ==~ /^(\+|\-)version.*/) {
+              if (line ==~ /^\-version.*/) {
+                old_version = line
+              }
+              if (line ==~ /^\+version.*/) {
+                new_version = line
+              }
+              println "Old version: ${old_version.split(" ")[1]}"
+              println "New version: ${new_version.split(" ")[1]}"
             }
-            if (line ==~ /^\+version.*/) {
-              new_version = line
-            }
-            println "Old version: ${old_version.split(" ")}"
-            println "New version: ${new_version.split(" ")}"
           }
         }
       }
