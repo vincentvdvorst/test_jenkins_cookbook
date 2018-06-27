@@ -12,7 +12,8 @@ def VERSION_BUMP_REQUIRED = [
   "Berksfile",
   "Berksfile.lock",
   "Policyfile.rb",
-  "Policyfile.lock.json"
+  "Policyfile.lock.json",
+  "metadata.rb"
 ]
 
 def chefRepo = "D:/chef-repo"
@@ -136,230 +137,230 @@ stage('Versioning') {
   }
 }
 
-stage('Linting') {
-  node {
+// stage('Linting') {
+//   node {
 
-    echo "cookbook: ${cookbook}"
-    echo "current branch: ${currentBranch}"
-    echo "checkout directory: ${cookbookDirectory}"
-    try {
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory){
-        // clean out any old artifacts from the cookbook directory including the berksfile.lock file
-        bat "del Berksfile.lock"
-      }
+//     echo "cookbook: ${cookbook}"
+//     echo "current branch: ${currentBranch}"
+//     echo "checkout directory: ${cookbookDirectory}"
+//     try {
+//       fetch(scm, cookbookDirectory, currentBranch)
+//       dir(cookbookDirectory){
+//         // clean out any old artifacts from the cookbook directory including the berksfile.lock file
+//         bat "del Berksfile.lock"
+//       }
 
-      dir(cookbookDirectory) {
-        bat "chef exec cookstyle ."
-      }
-      currentBuild.result = 'SUCCESS'
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-      throw err
-    }
-  }
-}
+//       dir(cookbookDirectory) {
+//         bat "chef exec cookstyle ."
+//       }
+//       currentBuild.result = 'SUCCESS'
+//     }
+//     catch(err) {
+//       currentBuild.result = 'FAILED'
+//       throw err
+//     }
+//   }
+// }
 
-stage('Unit Testing') {
-  node {
-    try {
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory) {
-        bat "berks install"
-        bat "chef exec rspec ."
-      }
-      currentBuild.result = 'SUCCESS'
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-      throw err
-    }
-  }
-}
+// stage('Unit Testing') {
+//   node {
+//     try {
+//       fetch(scm, cookbookDirectory, currentBranch)
+//       dir(cookbookDirectory) {
+//         bat "berks install"
+//         bat "chef exec rspec ."
+//       }
+//       currentBuild.result = 'SUCCESS'
+//     }
+//     catch(err) {
+//       currentBuild.result = 'FAILED'
+//       throw err
+//     }
+//   }
+// }
 
-stage('Functional (Kitchen)') {
-  node {
-    try {
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory) {
-       bat '''
-          set KITCHEN_YAML=.kitchen.jenkins.yml
-          set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
-          kitchen verify
-        '''
-      }
-      currentBuild.result = 'SUCCESS'
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-    }
-    finally {
-      dir(cookbookDirectory) {
-        bat '''
-          set KITCHEN_YAML=.kitchen.jenkins.yml
-          kitchen destroy
-        '''
-      }
-    }
-  }
-}
+// stage('Functional (Kitchen)') {
+//   node {
+//     try {
+//       fetch(scm, cookbookDirectory, currentBranch)
+//       dir(cookbookDirectory) {
+//        bat '''
+//           set KITCHEN_YAML=.kitchen.jenkins.yml
+//           set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
+//           kitchen verify
+//         '''
+//       }
+//       currentBuild.result = 'SUCCESS'
+//     }
+//     catch(err) {
+//       currentBuild.result = 'FAILED'
+//     }
+//     finally {
+//       dir(cookbookDirectory) {
+//         bat '''
+//           set KITCHEN_YAML=.kitchen.jenkins.yml
+//           kitchen destroy
+//         '''
+//       }
+//     }
+//   }
+// }
 
-stage('Publishing') {
-  node {
-    if ( currentBranch == stableBranch ) {
-      try{
-        dir(cookbookDirectory) {
-          bat "berks vendor"
-          bat "berks upload --halt-on-frozen"
-          currentBuild.result = 'SUCCESS'
-        }
-      }
-      catch(err){
-        currentBuild.result = 'FAILED'
-      }
-    } else {
-      echo "Skipping Publishing stage"
-    }
-  }
-}
+// stage('Publishing') {
+//   node {
+//     if ( currentBranch == stableBranch ) {
+//       try{
+//         dir(cookbookDirectory) {
+//           bat "berks vendor"
+//           bat "berks upload --halt-on-frozen"
+//           currentBuild.result = 'SUCCESS'
+//         }
+//       }
+//       catch(err){
+//         currentBuild.result = 'FAILED'
+//       }
+//     } else {
+//       echo "Skipping Publishing stage"
+//     }
+//   }
+// }
 
-stage('Pinning in QA') {
-  if (currentBranch == stableBranch) {
-    def approval = input(message: "Deploy to ${qaEnvironment}?", ok: 'Yes', 
-                          parameters: [booleanParam(defaultValue: true, 
-                          description: 'Update version pins in environment?',name: 'Yes?')])
+// stage('Pinning in QA') {
+//   if (currentBranch == stableBranch) {
+//     def approval = input(message: "Deploy to ${qaEnvironment}?", ok: 'Yes', 
+//                           parameters: [booleanParam(defaultValue: true, 
+//                           description: 'Update version pins in environment?',name: 'Yes?')])
 
-    if (approval == true) {
-      node {
-        try{
-          dir(chefRepo) {
-            environments = bat(returnStdout: true, script: """
-              @echo off
-              knife environment list
-            """).trim().split()
+//     if (approval == true) {
+//       node {
+//         try{
+//           dir(chefRepo) {
+//             environments = bat(returnStdout: true, script: """
+//               @echo off
+//               knife environment list
+//             """).trim().split()
 
-            if (environments.contains(qaEnvironment)) {
-              println "Environment already exists on Chef server, downloading..."
-              bat "knife download environments/${qaEnvironment}.json"
-            } else {
-              throw new Exception("Please ensure your target environment exists on the Chef server.")
-            }
+//             if (environments.contains(qaEnvironment)) {
+//               println "Environment already exists on Chef server, downloading..."
+//               bat "knife download environments/${qaEnvironment}.json"
+//             } else {
+//               throw new Exception("Please ensure your target environment exists on the Chef server.")
+//             }
 
-            def jsonData = readJSON file: "${chefRepo}/environments/${qaEnvironment}.json"
+//             def jsonData = readJSON file: "${chefRepo}/environments/${qaEnvironment}.json"
 
-            version = new SemVer('0.0.0')
+//             version = new SemVer('0.0.0')
 
-            def metadata_lines = readFile "${cookbookDirectory}/metadata.rb"
+//             def metadata_lines = readFile "${cookbookDirectory}/metadata.rb"
 
-            for (line in metadata_lines.split("\n")) {
-              if (line ==~ /^version.*/) {
-                version = new SemVer(line.split(" ")[1].replace("\'", ""))
-                println version.toString()
-              }
-            }
+//             for (line in metadata_lines.split("\n")) {
+//               if (line ==~ /^version.*/) {
+//                 version = new SemVer(line.split(" ")[1].replace("\'", ""))
+//                 println version.toString()
+//               }
+//             }
 
-            if (jsonData.containsKey('cookbook_versions')){
-              jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
-            } else {
-              def cookbookVersionsMap = [:]
-              jsonData['cookbook_versions'] = [:]
-              jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
-            }
+//             if (jsonData.containsKey('cookbook_versions')){
+//               jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
+//             } else {
+//               def cookbookVersionsMap = [:]
+//               jsonData['cookbook_versions'] = [:]
+//               jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
+//             }
             
-            readJSON file: "${chefRepo}/environments/${qaEnvironment}.json"
-            writeJSON file: "${chefRepo}/environments/${qaEnvironment}.json", json: jsonData, pretty:2
+//             readJSON file: "${chefRepo}/environments/${qaEnvironment}.json"
+//             writeJSON file: "${chefRepo}/environments/${qaEnvironment}.json", json: jsonData, pretty:2
 
-            bat "knife environment from file ${chefRepo}/environments/${qaEnvironment}.json"
+//             bat "knife environment from file ${chefRepo}/environments/${qaEnvironment}.json"
 
-            currentBuild.result = 'SUCCESS'
-          }
-        }
-        catch(err){
-          println err.getMessage()
-          currentBuild.result = 'FAILED'
-          throw err
-        }
-      }
-    }
-  } else {
-    echo "Skipping Pinning stage"
-  }
-}
+//             currentBuild.result = 'SUCCESS'
+//           }
+//         }
+//         catch(err){
+//           println err.getMessage()
+//           currentBuild.result = 'FAILED'
+//           throw err
+//         }
+//       }
+//     }
+//   } else {
+//     echo "Skipping Pinning stage"
+//   }
+// }
 
-stage('Pinning in Prod') {
-  if (currentBranch == stableBranch) {
-    def approval = input(message: "Deploy to ${prodEnvironment}?", ok: 'Yes', 
-                          parameters: [booleanParam(defaultValue: true, 
-                          description: 'Update version pins in environment?',name: 'Yes?')])
+// stage('Pinning in Prod') {
+//   if (currentBranch == stableBranch) {
+//     def approval = input(message: "Deploy to ${prodEnvironment}?", ok: 'Yes', 
+//                           parameters: [booleanParam(defaultValue: true, 
+//                           description: 'Update version pins in environment?',name: 'Yes?')])
 
-    if (approval == true) {
-      node {
-        try{
-          dir(chefRepo) {
-            environments = bat(returnStdout: true, script: """
-              @echo off
-              knife environment list
-            """).trim().split()
+//     if (approval == true) {
+//       node {
+//         try{
+//           dir(chefRepo) {
+//             environments = bat(returnStdout: true, script: """
+//               @echo off
+//               knife environment list
+//             """).trim().split()
 
-            if (environments.contains(prodEnvironment)) {
-              println "Environment already exists on Chef server, downloading..."
-              bat "knife download environments/${prodEnvironment}.json"
-            } else {
-              throw new Exception("Please ensure your target environment exists on the Chef server.")
-            }
+//             if (environments.contains(prodEnvironment)) {
+//               println "Environment already exists on Chef server, downloading..."
+//               bat "knife download environments/${prodEnvironment}.json"
+//             } else {
+//               throw new Exception("Please ensure your target environment exists on the Chef server.")
+//             }
 
-            def jsonData = readJSON file: "${chefRepo}/environments/${prodEnvironment}.json"
+//             def jsonData = readJSON file: "${chefRepo}/environments/${prodEnvironment}.json"
 
-            version = new SemVer('0.0.0')
+//             version = new SemVer('0.0.0')
 
-            def metadata_lines = readFile "${cookbookDirectory}/metadata.rb"
+//             def metadata_lines = readFile "${cookbookDirectory}/metadata.rb"
 
-            for (line in metadata_lines.split("\n")) {
-              if (line ==~ /^version.*/) {
-                version = new SemVer(line.split(" ")[1].replace("\'", ""))
-                println version.toString()
-              }
-            }
+//             for (line in metadata_lines.split("\n")) {
+//               if (line ==~ /^version.*/) {
+//                 version = new SemVer(line.split(" ")[1].replace("\'", ""))
+//                 println version.toString()
+//               }
+//             }
 
-            if (jsonData.containsKey('cookbook_versions')){
-              jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
-            } else {
-              def cookbookVersionsMap = [:]
-              jsonData['cookbook_versions'] = [:]
-              jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
-            }
+//             if (jsonData.containsKey('cookbook_versions')){
+//               jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
+//             } else {
+//               def cookbookVersionsMap = [:]
+//               jsonData['cookbook_versions'] = [:]
+//               jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
+//             }
             
-            readJSON file: "${chefRepo}/environments/${prodEnvironment}.json"
-            writeJSON file: "${chefRepo}/environments/${prodEnvironment}.json", json: jsonData, pretty:2
+//             readJSON file: "${chefRepo}/environments/${prodEnvironment}.json"
+//             writeJSON file: "${chefRepo}/environments/${prodEnvironment}.json", json: jsonData, pretty:2
 
-            bat "knife environment from file ${chefRepo}/environments/${prodEnvironment}.json"
+//             bat "knife environment from file ${chefRepo}/environments/${prodEnvironment}.json"
 
-            currentBuild.result = 'SUCCESS'
-          }
-        }
-        catch(err){
-          println err.getMessage()
-          currentBuild.result = 'FAILED'
-          throw err
-        }
-      }
-    }
-  } else {
-    echo "Skipping Pinning stage"
-  }
-}
+//             currentBuild.result = 'SUCCESS'
+//           }
+//         }
+//         catch(err){
+//           println err.getMessage()
+//           currentBuild.result = 'FAILED'
+//           throw err
+//         }
+//       }
+//     }
+//   } else {
+//     echo "Skipping Pinning stage"
+//   }
+// }
 
-stage('Clean up') {
-  node {
-    try {
-      dir(cookbookDirectory) {
+// stage('Clean up') {
+//   node {
+//     try {
+//       dir(cookbookDirectory) {
         
-        currentBuild.result = 'SUCCESS'
-      }
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-    }
-  }
-}
+//         currentBuild.result = 'SUCCESS'
+//       }
+//     }
+//     catch(err) {
+//       currentBuild.result = 'FAILED'
+//     }
+//   }
+// }
