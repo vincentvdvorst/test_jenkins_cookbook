@@ -119,6 +119,35 @@ stage('Versioning') {
           newSemVer = new SemVer(new_version)
           println "Old version: ${old_version.split("\\.")}"
           println "New version: ${new_version.split("\\.")}"
+          test1 = new SemVer('0.1.0')
+          test2 = new SemVer('2.0.0')
+          test3 = new SemVer('0.2.0')
+          test4 = new SemVer('0.12.0')
+
+          println "false, false, false"
+
+          println test1.isGreaterThan(test2)
+          println test1.isGreaterThan(test3)
+          println test1.isGreaterThan(test4)
+
+          println "true, true, true"
+
+          println test2.isGreaterThan(test1)
+          println test2.isGreaterThan(test3)
+          println test2.isGreaterThan(test4)
+
+          println "true, false, false"
+
+          println test3.isGreaterThan(test1)
+          println test3.isGreaterThan(test2)
+          println test3.isGreaterThan(test4)
+
+          println "true, false, true"
+
+          println test4.isGreaterThan(test1)
+          println test4.isGreaterThan(test2)
+          println test4.isGreaterThan(test3)
+
           println oldSemVer.isGreaterThan(newSemVer)
         }
       }
