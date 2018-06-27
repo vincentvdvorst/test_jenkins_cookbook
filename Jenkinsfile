@@ -229,8 +229,6 @@ stage('Pinning in QA') {
             knife environment list
           """).trim().split()
 
-          println environments.join(":")
-
           if (environments.contains(qaEnvironment)) {
             println "Environment already exists on Chef server, downloading..."
             bat "knife download environments/${qaEnvironment}.json"
@@ -246,7 +244,8 @@ stage('Pinning in QA') {
 
           for (line in metadata_lines.split()) {
             if (line ==~ /^version.*/) {
-              version = new SemVer(line.split(" ")[1].replace("\'", ""))
+              // version = new SemVer(line.split(" ")[1].replace("\'", ""))
+              println line
             }
           }
 
