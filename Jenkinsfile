@@ -30,6 +30,23 @@ def fetch(scm, cookbookDirectory, currentBranch) {
   ])
 }
 
+class SemVer {
+  def major, minor, patch
+
+  SemVer(semverstr) {
+    this.major = semverstr.split("\\.")[0]
+    this.minor = semverstr.split("\\.")[1]
+    this.patch = semverstr.split("\\.")[2]
+  }
+
+  def isGreaterThan(other) {
+    if ((this.major > other.major) || (this.major == other.major && this.minor > other.minor) || (this.major == other.major && this.minor == other.minor && this.patch > other.patch)) {
+      return true
+    }
+    return false
+  }
+}
+
 // stage('Linting') {
 //   node {
 
@@ -98,8 +115,11 @@ stage('Versioning') {
               }
             }
           }
+          oldSemVer = new SemVer(old_version)
+          newSemVer = new SemVer(new_version)
           println "Old version: ${old_version.split("\\.")}"
           println "New version: ${new_version.split("\\.")}"
+          println newSemVer.isGreaterThan(oldSemVer)
         }
       }
       currentBuild.result = 'SUCCESS'
