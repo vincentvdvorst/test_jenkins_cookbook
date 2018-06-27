@@ -76,6 +76,7 @@ stage('Versioning') {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
+        bat "git fetch origin master"
         changed_files = bat(returnStdout: true, script: """
             @echo off
             git diff --name-only master
@@ -352,7 +353,10 @@ stage('Clean up') {
   node {
     try {
       dir(cookbookDirectory) {
-        
+        bat '''
+          set KITCHEN_YAML=.kitchen.jenkins.yml
+          kitchen destroy
+        '''
         currentBuild.result = 'SUCCESS'
       }
     }
