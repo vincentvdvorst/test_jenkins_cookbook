@@ -250,12 +250,12 @@ stage('Pinning in QA') {
           }
 
           if (jsonData.containsKey('cookbook_versions')){
-
+            jsonData['cookbook_versions'][cookbook] = "${versionPinOperator} ${version.toString()}"
           } else {
             cookbookVersionsMap = [cookbook: "${versionPinOperator} ${version.toString()}"]
+            jsonData['cookbook_versions'] = cookbookVersionsMap`
           }
-
-          // data['cookbook_versions'][cookbook] = "${versionPinOperator} ${version.toString()}"
+          jsonData['cookbook_versions'][cookbook] = "${versionPinOperator} ${version.toString()}"
           println '##################'
           // println data.name
           println jsonData
