@@ -270,10 +270,11 @@ stage('Pinning in QA') {
             currentBuild.result = 'SUCCESS'
           }
         }
-      catch(err){
-        println err.getMessage()
-        currentBuild.result = 'FAILED'
-        throw err
+        catch(err){
+          println err.getMessage()
+          currentBuild.result = 'FAILED'
+          throw err
+        }
       }
     }
   } else {
@@ -332,10 +333,11 @@ stage('Pinning in Prod') {
             currentBuild.result = 'SUCCESS'
           }
         }
-      catch(err){
-        println err.getMessage()
-        currentBuild.result = 'FAILED'
-        throw err
+        catch(err){
+          println err.getMessage()
+          currentBuild.result = 'FAILED'
+          throw err
+        }
       }
     }
   } else {
