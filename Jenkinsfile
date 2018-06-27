@@ -119,7 +119,7 @@ stage('Versioning') {
           newSemVer = new SemVer(new_version)
           println "Old version: ${old_version.split("\\.")}"
           println "New version: ${new_version.split("\\.")}"
-          println newSemVer.isGreaterThan(oldSemVer)
+          println oldSemVer.isGreaterThan(newSemVer)
         }
       }
       currentBuild.result = 'SUCCESS'
