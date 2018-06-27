@@ -145,6 +145,7 @@ stage('Versioning') {
       }
       println "################"
       println version_has_been_bumped
+      println version_bump_required
       println "################"
       currentBuild.result = 'SUCCESS'
     }
