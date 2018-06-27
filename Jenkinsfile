@@ -229,7 +229,7 @@ stage('Pinning in QA') {
 
           if (environments.contains(qaEnvironment)) {
             println "Environment already exists on Chef server"
-            bat "knife download environment/${qaEnvironment}.json"
+            bat "knife download environments/${qaEnvironment}.json"
           } else {
             println "Environment does not exist on Chef server"
             def builder = new JsonBuilder()
