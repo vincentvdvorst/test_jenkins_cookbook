@@ -254,7 +254,7 @@ stage('Pinning in QA') {
           } else {
             def cookbookVersionsMap = [:]
             jsonData['cookbook_versions'] = [:]
-            jsonData['cookbook_versions']["${cookbook}"] = "${versionPinOperator} ${version.toString()}"
+            jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
             // cookbookVersionsMap[cookbook] = "${versionPinOperator} ${version.toString()}"
             // jsonData['cookbook_versions'] = cookbookVersionsMap
           }
