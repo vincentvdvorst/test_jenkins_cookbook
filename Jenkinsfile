@@ -66,6 +66,10 @@ class SemVer {
     }
     return false
   }
+
+  def toString() {
+    return "${this.major.toString()}.${this.minor.toString()}.${this.patch.toString()}"
+  }
 }
 
 // stage('Versioning') {
@@ -238,8 +242,21 @@ stage('Pinning in QA') {
 
           def jsonSlurper = new JsonSlurper()
           def data = jsonSlurper.parseText(new File("${chefRepo}/environments/${qaEnvironment}.json").text)
+
+          version = new SemVer('0.0.0')
+
+          def metadata_lines = new File(cookbookDirectory, 'metadata.rb').as String[]
+
+          for (line in metadata_lines) {
+            if (line ==~ /^version.*/) {
+              version = new SemVer(line.split(" ")[1].replace("\'", ""))
+            }
+          }
+
+          data['cookbook_versions'][cookbook] = "${pinOperator} ${version.toString()}"
           println '##################'
           println data.name
+          println data['cookbook_versions'][cookbook]
           println '##################'
 
           currentBuild.result = 'SUCCESS'
