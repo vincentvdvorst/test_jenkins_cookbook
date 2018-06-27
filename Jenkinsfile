@@ -219,15 +219,19 @@ stage('Pinning in QA') {
   node {
     if ( currentBranch == currentBranch ) {
       try{
-        dir(cookbookDirectory) {
+        dir(chefRepo) {
           environments = bat(returnStdout: true, script: """
             @echo off
             knife environment list
           """).trim().split()
 
+          println environments
+
           if (environments.contains(qaEnvironment)) {
+            println "Environment already exists on Chef server"
             bat "knife download environment/${qaEnvironment}.json"
           } else {
+            println "Environment does not exist on Chef server"
             def builder = new JsonBuilder()
             builder name: qaEnvironment
             json = builder.toPrettyString()
