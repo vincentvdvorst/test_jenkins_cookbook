@@ -100,6 +100,8 @@ stage('Versioning') {
           """
         ).trim().split()
 
+        version_has_been_bumped = false
+
         if (changed_files.contains('metadata.rb')) {
           metadata_lines = bat(returnStdout: true, script: "git diff --unified=0 --no-color master:metadata.rb metadata.rb").split('\n')
           old_version = ""
@@ -117,11 +119,16 @@ stage('Versioning') {
           oldSemVer = new SemVer(old_version)
           newSemVer = new SemVer(new_version)
 
-          if (!oldSemVer.isNewerThan(newSemVer)) {
+          if (!newSemVer.isNewerThan(oldSemVer)) {
             throw new Exception("The version that has been set is not newer than the previous version.")
+          } else {
+            version_has_been_bumped = true
           }
         }
       }
+      println "################"
+      println version_has_been_bumped
+      println "################"
       currentBuild.result = 'SUCCESS'
     }
     catch(err) {
