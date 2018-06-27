@@ -5,7 +5,7 @@ def cookbook = 'test_jenkins_cookbook'
 def stableBranch = 'master'
 def currentBranch = env.BRANCH_NAME
 
-def qaEnvironment = '_default'
+def qaEnvironment = 'qa'
 def prodEnvironment = 'prod'
 
 def VERSION_BUMP_REQUIRED = [
@@ -235,6 +235,8 @@ stage('Pinning in QA') {
             def builder = new JsonBuilder()
             builder name: qaEnvironment
             json = builder.toPrettyString()
+
+            println json
             new File(chefRepo + "/environments/${qaEnvironment}.json").write(json)
           }
           currentBuild.result = 'SUCCESS'
