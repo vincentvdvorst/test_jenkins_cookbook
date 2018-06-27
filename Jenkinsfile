@@ -245,7 +245,7 @@ stage('Pinning in QA') {
           for (line in metadata_lines.split("\n")) {
             if (line ==~ /^version.*/) {
               version = new SemVer(line.split(" ")[1].replace("\'", ""))
-              println version
+              println version.toString()
             }
           }
 
