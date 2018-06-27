@@ -119,6 +119,7 @@ stage('Versioning') {
           if ( file ==~ /files\/.*/ || file ==~ /recipes\/.*/ || file ==~ /attributes\/.*/ || file ==~ /libraries\/.*/ || file ==~ /templates\/.*/) {
             version_bump_required = true
           }
+          println file
         }
 
         if (changed_files.contains('metadata.rb')) {
