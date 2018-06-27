@@ -1,5 +1,3 @@
-import groovy.json.*
-
 def cookbook = 'test_jenkins_cookbook'
 
 def stableBranch = 'master'
@@ -240,20 +238,17 @@ stage('Pinning in QA') {
             throw new Exception("Please ensure your target environment exists on the Chef server.")
           }
 
-          // def jsonSlurper = new JsonSlurper()
           def jsonData = readJSON file: "${chefRepo}/environments/${qaEnvironment}.json"
-          println jsonData
-          // def data = jsonSlurper.parseText(jsonData)
 
-          // version = new SemVer('0.0.0')
+          version = new SemVer('0.0.0')
 
-          // def metadata_lines = readFile "${chefRepo}/environments/${qaEnvironment}.json"
+          def metadata_lines = readFile "${cookbookDirectory}/metadata.rb"
 
-          // for (line in metadata_lines.split()) {
-          //   if (line ==~ /^version.*/) {
-          //     version = new SemVer(line.split(" ")[1].replace("\'", ""))
-          //   }
-          // }
+          for (line in metadata_lines.split()) {
+            if (line ==~ /^version.*/) {
+              version = new SemVer(line.split(" ")[1].replace("\'", ""))
+            }
+          }
 
           // if (data.containsKey('cookbook_versions')){
 
