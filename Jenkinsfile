@@ -229,22 +229,19 @@ stage('Pinning in QA') {
 
           println environments.join(":")
 
-          step('Download environment file.') {
-            if (environments.contains(qaEnvironment)) {
-              println "Environment already exists on Chef server, downloading..."
-              bat "knife download environments/${qaEnvironment}.json"
-            } else {
-              throw new Exception("Please ensure your target environment exists on the Chef server.")
-            }
+          if (environments.contains(qaEnvironment)) {
+            println "Environment already exists on Chef server, downloading..."
+            bat "knife download environments/${qaEnvironment}.json"
+          } else {
+            throw new Exception("Please ensure your target environment exists on the Chef server.")
           }
 
-          step('Update environment file.') {
-            def jsonSlurper = new JsonSlurper()
-            def data = jsonSlurper.parseText(new File("./environments/${qaEnvironment}.json").text)
-            println '##################'
-            println data.name
-            println '##################'
-          }
+          def jsonSlurper = new JsonSlurper()
+          def data = jsonSlurper.parseText(new File("./environments/${qaEnvironment}.json").text)
+          println '##################'
+          println data.name
+          println '##################'
+          
           currentBuild.result = 'SUCCESS'
         }
       }
