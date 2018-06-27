@@ -93,6 +93,8 @@ stage('Versioning') {
           } else if ( VERSION_BUMP_REQUIRED.contains(file)) {
             println file
             version_bump_required = true
+          } else {
+            println file
           }
         }
 
@@ -114,8 +116,8 @@ stage('Versioning') {
           newSemVer = new SemVer(new_version)
 
           println "##########Versioning##########"
-          println oldSemVer
-          println newSemVer
+          println oldSemVer.toString()
+          println newSemVer.toString()
           println "##########Versioning##########"
 
           if (!newSemVer.isNewerThan(oldSemVer)) {
