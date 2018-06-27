@@ -34,9 +34,9 @@ class SemVer {
   def major, minor, patch
 
   SemVer(semverstr) {
-    this.major = semverstr.split("\\.")[0]
-    this.minor = semverstr.split("\\.")[1]
-    this.patch = semverstr.split("\\.")[2]
+    this.major = semverstr.split("\\.")[0].toInteger()
+    this.minor = semverstr.split("\\.")[1].toInteger()
+    this.patch = semverstr.split("\\.")[2].toInteger()
   }
 
   def isGreaterThan(other) {
