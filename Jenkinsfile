@@ -255,7 +255,6 @@ stage('Pinning in QA') {
             cookbookVersionsMap = [cookbook: "${versionPinOperator} ${version.toString()}"]
             jsonData['cookbook_versions'] = cookbookVersionsMap`
           }
-          jsonData['cookbook_versions'][cookbook] = "${versionPinOperator} ${version.toString()}"
           println '##################'
           // println data.name
           println jsonData
