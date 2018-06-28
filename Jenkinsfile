@@ -75,61 +75,74 @@ class SemVer {
 stage('Versioning') {
   node {
     try {
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory) {
+      if ( currentBranch == stableBranch ){
+        fetch(scm, cookbookDirectory, currentBranch)
+        dir(cookbookDirectory) {
+          version_has_been_bumped = false
+          version_bump_required = false
+
+          newVersion = new SemVer('0.0.0')
+
+          def metadata_lines = readFile "metadata.rb"
+
+          for (line in metadata_lines.split("\n")) {
+            if (line ==~ /^version.*/) {
+              newVersion = new SemVer(line.split(" ")[1].replace("\'", ""))
+            }
+          }
+
+          try {
+            cookbookDetails = bat(returnStdout: true, script: """
+              @echo off
+              knife cookbook show ${cookbook}
+            """)
+            println cookbookDetails.split()[1]
+          }
+          catch(err) {
+            echo "Cookbook is not present on Chef server, no version bump is required."
+            version_bump_required = false
+          }
+        }
       }
-    //   fetch(scm, cookbookDirectory, stableBranch)
-    //   fetch(scm, cookbookDirectory, currentBranch)
-    //   dir(cookbookDirectory) {
-    //     changed_files = bat(returnStdout: true, script: """
-    //         @echo off
-    //         git diff --name-only master
-    //       """
-    //     ).trim().split()
 
-    //     version_has_been_bumped = false
-    //     version_bump_required = false
+      //   for (file in changed_files) {
+      //     if ( file ==~ /files\/.*/ || file ==~ /recipes\/.*/ || file ==~ /attributes\/.*/ || file ==~ /libraries\/.*/ || file ==~ /templates\/.*/) {
+      //       version_bump_required = true
+      //     } else if ( VERSION_BUMP_REQUIRED.contains(file)) {
+      //       println file
+      //       version_bump_required = true
+      //     }
+      //   }
 
-    //     println changed_files.join(" ")
+      //   if (changed_files.contains('metadata.rb')) {
+      //     metadata_lines = bat(returnStdout: true, script: "git diff --unified=0 --no-color master:metadata.rb metadata.rb").split('\n')
+      //     old_version = "0.0.0"
+      //     new_version = "0.0.0"
+      //     for (line in metadata_lines) {
+      //       if (line ==~ /^(\+|\-)version.*/) {
+      //         if (line ==~ /^\-version.*/) {
+      //           old_version = line.split(" ")[1].replace("\'", "")
+      //         }
+      //         if (line ==~ /^\+version.*/) {
+      //           new_version = line.split(" ")[1].replace("\'", "")
+      //         }
+      //       }
+      //     }
+      //     oldSemVer = new SemVer(old_version)
+      //     newSemVer = new SemVer(new_version)
 
-    //     for (file in changed_files) {
-    //       if ( file ==~ /files\/.*/ || file ==~ /recipes\/.*/ || file ==~ /attributes\/.*/ || file ==~ /libraries\/.*/ || file ==~ /templates\/.*/) {
-    //         version_bump_required = true
-    //       } else if ( VERSION_BUMP_REQUIRED.contains(file)) {
-    //         println file
-    //         version_bump_required = true
-    //       }
-    //     }
-
-    //     if (changed_files.contains('metadata.rb')) {
-    //       metadata_lines = bat(returnStdout: true, script: "git diff --unified=0 --no-color master:metadata.rb metadata.rb").split('\n')
-    //       old_version = "0.0.0"
-    //       new_version = "0.0.0"
-    //       for (line in metadata_lines) {
-    //         if (line ==~ /^(\+|\-)version.*/) {
-    //           if (line ==~ /^\-version.*/) {
-    //             old_version = line.split(" ")[1].replace("\'", "")
-    //           }
-    //           if (line ==~ /^\+version.*/) {
-    //             new_version = line.split(" ")[1].replace("\'", "")
-    //           }
-    //         }
-    //       }
-    //       oldSemVer = new SemVer(old_version)
-    //       newSemVer = new SemVer(new_version)
-
-    //       if (!newSemVer.isNewerThan(oldSemVer)) {
-    //         throw new Exception("The version that has been set is not newer than the previous version.")
-    //       } else {
-    //         version_has_been_bumped = true
-    //       }
-    //     }
-    //   }
+      //     if (!newSemVer.isNewerThan(oldSemVer)) {
+      //       throw new Exception("The version that has been set is not newer than the previous version.")
+      //     } else {
+      //       version_has_been_bumped = true
+      //     }
+      //   }
+      // }
       
-    //   if (version_bump_required && !version_has_been_bumped) {
-    //     throw new Exception("Changes have been made that require a version update.")
-    //   }
-    //   currentBuild.result = 'SUCCESS'
+      // if (version_bump_required && !version_has_been_bumped) {
+      //   throw new Exception("Changes have been made that require a version update.")
+      // }
+      currentBuild.result = 'SUCCESS'
     }
     catch(err) {
       currentBuild.result = 'FAILED'
