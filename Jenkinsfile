@@ -96,7 +96,10 @@ stage('Versioning') {
               @echo off
               knife cookbook show ${cookbook}
             """)
-            println cookbookDetails.split()[1]
+            currentVersion = new SemVer(cookbookDetails.split()[1])
+            if (newVersion.isNewerThan(currentVersion)) {
+              version_has_been_bumped = true
+            }
           }
           catch(err) {
             echo "Cookbook is not present on Chef server, no version bump is required."
