@@ -37,6 +37,12 @@ def fetch(scm, cookbookDirectory, currentBranch) {
 class SemVer {
   def major, minor, patch
 
+  SemVer() {
+    this.major = 0
+    this.minor = 0
+    this.patch = 0
+  }
+
   SemVer(semverstr) {
     try {
       this.major = semverstr.split("\\.")[0].toInteger()
@@ -60,6 +66,29 @@ class SemVer {
     }
   }
 
+  def set(major, minor, patch) {
+    try {
+      this.major = major
+      this.minor = minor
+      this.patch = patch
+    }
+    catch(err) {
+      throw new Exception("This method expects 3 integer values for major, minor and patch versions")
+    }
+  }
+
+  def set(semverstr) {
+    try {
+      this.major = semverstr.split("\\.")[0].toInteger()
+      this.minor = semverstr.split("\\.")[1].toInteger()
+      this.patch = semverstr.split("\\.")[2].toInteger()
+    }
+    
+    catch(err) {
+      throw new Exception("This method expects a sane Semantic Version string: \"major.minor.patch\" e.g. \"2.1.1\"")
+    }
+  }
+
   def isNewerThan(other) {
     if ((this.major > other.major) || (this.major == other.major && this.minor > other.minor) || (this.major == other.major && this.minor == other.minor && this.patch > other.patch)) {
       return true
@@ -75,79 +104,43 @@ class SemVer {
 stage('Versioning') {
   node {
     try {
-      if ( currentBranch == currentBranch ){
+      echo "Checking if version is updated on stable branch."
+      if ( currentBranch == stableBranch ){
         fetch(scm, cookbookDirectory, currentBranch)
         dir(cookbookDirectory) {
-          version_has_been_bumped = false
-          version_bump_required = false
 
-          newVersion = new SemVer('0.0.0')
+          newVersion = new SemVer()
 
           def metadata_lines = readFile "metadata.rb"
 
           for (line in metadata_lines.split("\n")) {
             if (line ==~ /^version.*/) {
-              newVersion = new SemVer(line.split(" ")[1].replace("\'", ""))
+              newVersion.set(line.split(" ")[1].replace("\'", ""))
             }
           }
 
           cookbookDetails = ""
+
+          currentVersion = new SemVer()
 
           try {
             cookbookDetails = bat(returnStdout: true, script: """
               @echo off
               knife cookbook show ${cookbook}
             """)
+            currentVersion.set(cookbookDetails.split()[1])
           }
           catch(err) {
             echo "Cookbook is not present on Chef server, no version bump is required."
-            version_bump_required = false
           }
 
-          currentVersion = new SemVer(cookbookDetails.split()[1])
           if (!newVersion.isNewerThan(currentVersion)) {
             throw new Exception("The version that has been set is not newer than the previous version.")
-          } 
+          } else {
+            echo "The version has been set appropriately."
+          }
         }
       }
-
-      //   for (file in changed_files) {
-      //     if ( file ==~ /files\/.*/ || file ==~ /recipes\/.*/ || file ==~ /attributes\/.*/ || file ==~ /libraries\/.*/ || file ==~ /templates\/.*/) {
-      //       version_bump_required = true
-      //     } else if ( VERSION_BUMP_REQUIRED.contains(file)) {
-      //       println file
-      //       version_bump_required = true
-      //     }
-      //   }
-
-      //   if (changed_files.contains('metadata.rb')) {
-      //     metadata_lines = bat(returnStdout: true, script: "git diff --unified=0 --no-color master:metadata.rb metadata.rb").split('\n')
-      //     old_version = "0.0.0"
-      //     new_version = "0.0.0"
-      //     for (line in metadata_lines) {
-      //       if (line ==~ /^(\+|\-)version.*/) {
-      //         if (line ==~ /^\-version.*/) {
-      //           old_version = line.split(" ")[1].replace("\'", "")
-      //         }
-      //         if (line ==~ /^\+version.*/) {
-      //           new_version = line.split(" ")[1].replace("\'", "")
-      //         }
-      //       }
-      //     }
-      //     oldSemVer = new SemVer(old_version)
-      //     newSemVer = new SemVer(new_version)
-
-      //     if (!newSemVer.isNewerThan(oldSemVer)) {
-      //       throw new Exception("The version that has been set is not newer than the previous version.")
-      //     } else {
-      //       version_has_been_bumped = true
-      //     }
-      //   }
-      // }
-      
-      // if (version_bump_required && !version_has_been_bumped) {
-      //   throw new Exception("Changes have been made that require a version update.")
-      // }
       currentBuild.result = 'SUCCESS'
     }
     catch(err) {
