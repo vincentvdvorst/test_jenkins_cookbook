@@ -27,6 +27,7 @@ def fetch(scm, cookbookDirectory, currentBranch) {
     extensions: scm.extensions + [
       [$class: 'RelativeTargetDirectory',relativeTargetDir: cookbookDirectory],
       [$class: 'CleanBeforeCheckout'],
+      [$class: 'WipeWorkspace'],
       [$class: 'LocalBranch', localBranch: currentBranch]
     ],
     userRemoteConfigs: scm.userRemoteConfigs
@@ -76,7 +77,6 @@ stage('Versioning') {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
-        println scm.branches
       }
     //   fetch(scm, cookbookDirectory, stableBranch)
     //   fetch(scm, cookbookDirectory, currentBranch)
