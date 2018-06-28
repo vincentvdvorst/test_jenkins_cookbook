@@ -75,7 +75,7 @@ class SemVer {
 stage('Versioning') {
   node {
     try {
-      if ( currentBranch == stableBranch ){
+      if ( currentBranch == currentBranch ){
         fetch(scm, cookbookDirectory, currentBranch)
         dir(cookbookDirectory) {
           version_has_been_bumped = false
