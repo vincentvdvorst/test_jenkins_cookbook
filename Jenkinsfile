@@ -102,7 +102,7 @@ def fetch(scm, cookbookDirectory, currentBranch) {
   ])
 }
 
-def versionPin(currentEnvironment, chefRepo, cookbookDirectory) {
+def versionPin(currentEnvironment, chefRepo, cookbookDirectory, cookbook) {
   dir(chefRepo) {
     environments = bat(returnStdout: true, script: """
       @echo off
@@ -297,7 +297,7 @@ stage('Pinning in QA') {
       node {
         try{
           fetch(scm, cookbookDirectory, currentBranch)
-          versionPin(qaEnvironment, chefRepo, cookbookDirectory)
+          versionPin(qaEnvironment, chefRepo, cookbookDirectory, cookbook)
         }
         catch(err){
           println err.getMessage()
