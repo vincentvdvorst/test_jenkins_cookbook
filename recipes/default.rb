@@ -3,5 +3,5 @@
 # Version bump required
 
 file 'c:\test.txt' do
-  content 'Hello World'
+  content 'Hello World 2'
 end
