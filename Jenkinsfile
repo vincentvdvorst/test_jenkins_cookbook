@@ -102,7 +102,7 @@ def fetch(scm, cookbookDirectory, currentBranch) {
   ])
 }
 
-def versionPin(currentEnvironment) {
+def versionPin(currentEnvironment, chefRepo, cookbookDirectory) {
   dir(chefRepo) {
     environments = bat(returnStdout: true, script: """
       @echo off
@@ -269,6 +269,7 @@ stage('Publishing') {
     if ( currentBranch == stableBranch ) {
       echo "Attempting upload of stable branch cookbook to Chef server."
       try{
+        fetch(scm, cookbookDirectory, currentBranch)
         dir(cookbookDirectory) {
           bat "berks update"
           bat "berks vendor"
@@ -295,7 +296,8 @@ stage('Pinning in QA') {
     if (approval == true) {
       node {
         try{
-          versionPin(qaEnvironment)
+          fetch(scm, cookbookDirectory, currentBranch)
+          versionPin(qaEnvironment, chefRepo, cookbookDirectory)
         }
         catch(err){
           println err.getMessage()
