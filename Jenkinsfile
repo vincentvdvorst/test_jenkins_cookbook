@@ -202,11 +202,6 @@ stage('Linting') {
     echo "checkout directory: ${cookbookDirectory}"
     try {
       fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory){
-        // Delete berksfile.lock file
-        bat "del Berksfile.lock"
-      }
-
       dir(cookbookDirectory) {
         bat "chef exec cookstyle ."
       }
@@ -271,7 +266,6 @@ stage('Publishing') {
       try{
         fetch(scm, cookbookDirectory, currentBranch)
         dir(cookbookDirectory) {
-          bat "berks update"
           bat "berks vendor"
           bat "berks upload --halt-on-frozen"
           currentBuild.result = 'SUCCESS'
