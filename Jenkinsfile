@@ -105,7 +105,7 @@ stage('Versioning') {
   node {
     try {
       echo "Checking if version is updated on stable branch."
-      if ( currentBranch == stableBranch ){
+      if ( currentBranch == currentBranch ){
         fetch(scm, cookbookDirectory, currentBranch)
         dir(cookbookDirectory) {
 
