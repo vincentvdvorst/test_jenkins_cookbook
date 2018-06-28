@@ -76,14 +76,7 @@ stage('Versioning') {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
-        final changeSet = build.getChangeSet()
-        final changeSetIterator = changeSet.iterator()
-        while (changeSetIterator.hasNext()) {
-          final gitChangeSet = changeSetIterator.next()
-          for (final path : gitChangeSet.getPaths()) {
-            println path.getPath()
-          }
-        }
+        println scm.branches
       }
     //   fetch(scm, cookbookDirectory, stableBranch)
     //   fetch(scm, cookbookDirectory, currentBranch)
