@@ -149,7 +149,7 @@ def versionPin(currentEnvironment, chefRepo, cookbookDirectory, cookbook, versio
 stage('Versioning') {
   node {
     try {
-      echo "Checking if version is updated on stable branch."
+      echo "Checking if version is updated."
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory) {
 
@@ -236,33 +236,33 @@ stage('Unit Testing') {
   }
 }
 
-// stage('Functional (Kitchen)') {
-//   node {
-//     try {
-//       fetch(scm, cookbookDirectory, currentBranch)
-//       dir(cookbookDirectory) {
-//        bat '''
-//           set KITCHEN_YAML=.kitchen.jenkins.yml
-//           set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
-//           kitchen verify
-//         '''
-//       }
-//       currentBuild.result = 'SUCCESS'
-//     }
-//     catch(err) {
-//       currentBuild.result = 'FAILED'
-//       throw err
-//     }
-//     finally {
-//       dir(cookbookDirectory) {
-//         bat '''
-//           set KITCHEN_YAML=.kitchen.jenkins.yml
-//           kitchen destroy
-//         '''
-//       }
-//     }
-//   }
-// }
+stage('Functional (Kitchen)') {
+  node {
+    try {
+      fetch(scm, cookbookDirectory, currentBranch)
+      dir(cookbookDirectory) {
+       bat '''
+          set KITCHEN_YAML=.kitchen.jenkins.yml
+          set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
+          kitchen verify
+        '''
+      }
+      currentBuild.result = 'SUCCESS'
+    }
+    catch(err) {
+      currentBuild.result = 'FAILED'
+      throw err
+    }
+    finally {
+      dir(cookbookDirectory) {
+        bat '''
+          set KITCHEN_YAML=.kitchen.jenkins.yml
+          kitchen destroy
+        '''
+      }
+    }
+  }
+}
 
 stage('Publishing') {
   node {
@@ -288,7 +288,7 @@ stage('Publishing') {
 }
 
 stage('Pinning in QA') {
-  if (currentBranch == currentBranch) {
+  if (currentBranch == stableBranch) {
     def approval = input(message: "Deploy to ${qaEnvironment}?", ok: 'Yes', 
                           parameters: [booleanParam(defaultValue: true, 
                           description: 'Update version pins in environment?',name: 'Yes?')])
@@ -312,7 +312,7 @@ stage('Pinning in QA') {
 }
 
 stage('Pinning in Prod') {
-  if (currentBranch == currentBranch) {
+  if (currentBranch == stableBranch) {
     def approval = input(message: "Deploy to ${prodEnvironment}?", ok: 'Yes', 
                           parameters: [booleanParam(defaultValue: true, 
                           description: 'Update version pins in environment?',name: 'Yes?')])
@@ -335,20 +335,20 @@ stage('Pinning in Prod') {
   }
 }
 
-// stage('Clean up') {
-//   node {
-//     try {
-//       dir(cookbookDirectory) {
-//         bat '''
-//           set KITCHEN_YAML=.kitchen.jenkins.yml
-//           kitchen destroy
-//         '''
-//         currentBuild.result = 'SUCCESS'
-//       }
-//     }
-//     catch(err) {
-//       currentBuild.result = 'FAILED'
-//       throw err
-//     }
-//   }
-// }
+stage('Clean up') {
+  node {
+    try {
+      dir(cookbookDirectory) {
+        bat '''
+          set KITCHEN_YAML=.kitchen.jenkins.yml
+          kitchen destroy
+        '''
+        currentBuild.result = 'SUCCESS'
+      }
+    }
+    catch(err) {
+      currentBuild.result = 'FAILED'
+      throw err
+    }
+  }
+}
