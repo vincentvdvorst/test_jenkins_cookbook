@@ -288,7 +288,7 @@ stage('Publishing') {
 }
 
 stage('Pinning in QA') {
-  if (currentBranch == stableBranch) {
+  if (currentBranch == currentBranch) {
     def approval = input(message: "Deploy to ${qaEnvironment}?", ok: 'Yes', 
                           parameters: [booleanParam(defaultValue: true, 
                           description: 'Update version pins in environment?',name: 'Yes?')])
@@ -312,7 +312,7 @@ stage('Pinning in QA') {
 }
 
 stage('Pinning in Prod') {
-  if (currentBranch == stableBranch) {
+  if (currentBranch == currentBranch) {
     def approval = input(message: "Deploy to ${prodEnvironment}?", ok: 'Yes', 
                           parameters: [booleanParam(defaultValue: true, 
                           description: 'Update version pins in environment?',name: 'Yes?')])
