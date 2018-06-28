@@ -137,7 +137,7 @@ stage('Versioning') {
           if (!newVersion.isNewerThan(currentVersion)) {
             throw new Exception("The version that has been set is not newer than the previous version.")
           } else {
-            echo "The version has been set appropriately."
+            echo "The version has been set appropriately. Existing version: ${currentVersion.toString()}, new version is: ${newVersion.toString()}"
           }
         }
       } else {
