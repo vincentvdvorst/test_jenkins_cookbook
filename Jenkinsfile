@@ -203,7 +203,7 @@ stage('Linting') {
     try {
       fetch(scm, cookbookDirectory, currentBranch)
       dir(cookbookDirectory){
-        // clean out any old artifacts from the cookbook directory including the berksfile.lock file
+        // Delete berksfile.lock file
         bat "del Berksfile.lock"
       }
 
@@ -288,7 +288,7 @@ stage('Publishing') {
 }
 
 stage('Pinning in QA') {
-  if (currentBranch == currentBranch) {
+  if (currentBranch == stableBranch) {
     def approval = input(message: "Deploy to ${qaEnvironment}?", ok: 'Yes', 
                           parameters: [booleanParam(defaultValue: true, 
                           description: 'Update version pins in environment?',name: 'Yes?')])
@@ -311,68 +311,29 @@ stage('Pinning in QA') {
   }
 }
 
-// stage('Pinning in Prod') {
-//   if (currentBranch == stableBranch) {
-//     def approval = input(message: "Deploy to ${prodEnvironment}?", ok: 'Yes', 
-//                           parameters: [booleanParam(defaultValue: true, 
-//                           description: 'Update version pins in environment?',name: 'Yes?')])
+stage('Pinning in Prod') {
+  if (currentBranch == stableBranch) {
+    def approval = input(message: "Deploy to ${prodEnvironment}?", ok: 'Yes', 
+                          parameters: [booleanParam(defaultValue: true, 
+                          description: 'Update version pins in environment?',name: 'Yes?')])
 
-//     if (approval == true) {
-//       node {
-//         try{
-//           dir(chefRepo) {
-//             environments = bat(returnStdout: true, script: """
-//               @echo off
-//               knife environment list
-//             """).trim().split()
-
-//             if (environments.contains(prodEnvironment)) {
-//               println "Environment already exists on Chef server, downloading..."
-//               bat "knife download environments/${prodEnvironment}.json"
-//             } else {
-//               throw new Exception("Please ensure your target environment exists on the Chef server.")
-//             }
-
-//             def jsonData = readJSON file: "${chefRepo}/environments/${prodEnvironment}.json"
-
-//             version = new SemVer('0.0.0')
-
-//             def metadata_lines = readFile "${cookbookDirectory}/metadata.rb"
-
-//             for (line in metadata_lines.split("\n")) {
-//               if (line ==~ /^version.*/) {
-//                 version = new SemVer(line.split(" ")[1].replace("\'", ""))
-//                 println version.toString()
-//               }
-//             }
-
-//             if (jsonData.containsKey('cookbook_versions')){
-//               jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
-//             } else {
-//               def cookbookVersionsMap = [:]
-//               jsonData['cookbook_versions'] = [:]
-//               jsonData['cookbook_versions']["${cookbook}"] = versionPinOperator + " " + version.toString()
-//             }
-            
-//             readJSON file: "${chefRepo}/environments/${prodEnvironment}.json"
-//             writeJSON file: "${chefRepo}/environments/${prodEnvironment}.json", json: jsonData, pretty:2
-
-//             bat "knife environment from file ${chefRepo}/environments/${prodEnvironment}.json"
-
-//             currentBuild.result = 'SUCCESS'
-//           }
-//         }
-//         catch(err){
-//           println err.getMessage()
-//           currentBuild.result = 'FAILED'
-//           throw err
-//         }
-//       }
-//     }
-//   } else {
-//     echo "Skipping Pinning stage"
-//   }
-// }
+    if (approval == true) {
+      node {
+        try{
+          fetch(scm, cookbookDirectory, currentBranch)
+          versionPin(prodEnvironment, chefRepo, cookbookDirectory, cookbook, versionPinOperator)
+        }
+        catch(err){
+          println err.getMessage()
+          currentBuild.result = 'FAILED'
+          throw err
+        }
+      }
+    }
+  } else {
+    echo "Skipping Pinning stage"
+  }
+}
 
 // stage('Clean up') {
 //   node {
