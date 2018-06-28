@@ -91,20 +91,23 @@ stage('Versioning') {
             }
           }
 
+          cookbookDetails = ""
+
           try {
             cookbookDetails = bat(returnStdout: true, script: """
               @echo off
               knife cookbook show ${cookbook}
             """)
-            currentVersion = new SemVer(cookbookDetails.split()[1])
-            if (newVersion.isNewerThan(currentVersion)) {
-              version_has_been_bumped = true
-            }
           }
           catch(err) {
             echo "Cookbook is not present on Chef server, no version bump is required."
             version_bump_required = false
           }
+
+          currentVersion = new SemVer(cookbookDetails.split()[1])
+          if (!newVersion.isNewerThan(currentVersion)) {
+            throw new Exception("The version that has been set is not newer than the previous version.")
+          } 
         }
       }
 
