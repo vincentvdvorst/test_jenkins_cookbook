@@ -22,26 +22,26 @@ def cookbookDirectory = "${chefRepoCookbookDirectory}/${cookbook}"
 
 stage('Versioning') {
   node {
-    versionCheck(scm, cookbookDirectory, currentBranch, cookbook)
+    cookbookPipeline.versionCheck(scm, cookbookDirectory, currentBranch, cookbook)
   }
 }
 
 stage('Linting') {
   node {
-    lintTest(scm, cookbookDirectory, currentBranch, cookbook)
+    cookbookPipeline.lintTest(scm, cookbookDirectory, currentBranch, cookbook)
   }
 }
 
 stage('Unit Testing') {
   node {
-    unitTests(scm, cookbookDirectory, currentBranch, cookbook)
+    cookbookPipeline.unitTests(scm, cookbookDirectory, currentBranch, cookbook)
   }
 }
 
 stage('Functional (Kitchen)') {
   node {
     if (currentBranch == stableBranch) {
-      functionalTests(scm, cookbookDirectory, currentBranch, cookbook)
+      cookbookPipeline.functionalTests(scm, cookbookDirectory, currentBranch, cookbook)
     } else {
       echo "Skipping functional tests for branch: ${currentBranch}"
     }
