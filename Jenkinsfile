@@ -49,3 +49,9 @@ stage('Functional (Kitchen)') {
     }
   }
 }
+
+stage('Publishing') {
+  node {
+    cookbookPipeline.publish(scm, cookbookDirectory, currentBranch, stableBranch, cookbook)
+  }
+}
