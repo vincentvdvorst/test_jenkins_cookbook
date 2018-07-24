@@ -146,7 +146,7 @@ def versionPin(currentEnvironment, chefRepo, cookbookDirectory, cookbook, versio
   }
 }
 
-def versionCheck(scm, cookbookDirectory, currentBranch) {
+def versionCheck(scm, cookbookDirectory, currentBranch, cookbook) {
   echo "Checking if version is updated."
   try {
     fetch(scm, cookbookDirectory, currentBranch)
@@ -195,7 +195,7 @@ def versionCheck(scm, cookbookDirectory, currentBranch) {
   }
 }
 
-def lintTest(scm, cookbookDirectory, currentBranch) {
+def lintTest(scm, cookbookDirectory, currentBranch, cookbook) {
   echo "cookbook: ${cookbook}"
   echo "current branch: ${currentBranch}"
   echo "checkout directory: ${cookbookDirectory}"
@@ -212,7 +212,7 @@ def lintTest(scm, cookbookDirectory, currentBranch) {
   }
 }
 
-def unitTests(scm, cookbookDirectory, currentBranch) {
+def unitTests(scm, cookbookDirectory, currentBranch, cookbook) {
   try {
     fetch(scm, cookbookDirectory, currentBranch)
     dir(cookbookDirectory) {
@@ -227,7 +227,7 @@ def unitTests(scm, cookbookDirectory, currentBranch) {
   }
 }
 
-def functionalTests(scm, cookbookDirectory, currentBranch) {
+def functionalTests(scm, cookbookDirectory, currentBranch, cookbook) {
   try {
     fetch(scm, cookbookDirectory, currentBranch)
     dir(cookbookDirectory) {
@@ -253,7 +253,7 @@ def functionalTests(scm, cookbookDirectory, currentBranch) {
   }
 }
 
-def publish(scm, cookbookDirectory, currentBranch) {
+def publish(scm, cookbookDirectory, currentBranch, cookbook) {
   if ( currentBranch == stableBranch ) {
     echo "Attempting upload of stable branch cookbook to Chef server."
     try{
@@ -275,24 +275,24 @@ def publish(scm, cookbookDirectory, currentBranch) {
 
 stage('Versioning') {
   node {
-    versionCheck(scm, cookbookDirectory, currentBranch)
+    versionCheck(scm, cookbookDirectory, currentBranch, cookbook)
   }
 }
 
 stage('Linting') {
   node {
-    lintTest(scm, cookbookDirectory, currentBranch)
+    lintTest(scm, cookbookDirectory, currentBranch, cookbook)
   }
 }
 
 stage('Unit Testing') {
   node {
-    unitTests(scm, cookbookDirectory, currentBranch)
+    unitTests(scm, cookbookDirectory, currentBranch, cookbook)
   }
 }
 
 stage('Functional (Kitchen)') {
   node {
-    functionalTests(scm, cookbookDirectory, currentBranch)
+    functionalTests(scm, cookbookDirectory, currentBranch, cookbook)
   }
 }
