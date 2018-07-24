@@ -5,6 +5,7 @@ driver:
   region: us-east-1
   subnet_id: subnet-13a42677
   instance_type: t2.small
+  associate_public_ip: true
   interface: private
   iam_profile_name: JenkinsBuilder
   aws_ssh_key_id: vvdvorst-us-east-1-sandbox

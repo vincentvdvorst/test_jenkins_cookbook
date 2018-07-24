@@ -293,6 +293,10 @@ stage('Unit Testing') {
 
 stage('Functional (Kitchen)') {
   node {
-    functionalTests(scm, cookbookDirectory, currentBranch, cookbook)
+    if (currentBranch == stableBranch) {
+      functionalTests(scm, cookbookDirectory, currentBranch, cookbook)
+    } else {
+      echo "Skippin functional tests for branch: ${currentBranch}"
+    }
   }
 }
