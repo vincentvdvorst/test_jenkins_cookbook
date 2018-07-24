@@ -20,6 +20,8 @@ def chefRepo = "D:/chef-repo"
 def chefRepoCookbookDirectory = "${chefRepo}/cookbooks"
 def cookbookDirectory = "${chefRepoCookbookDirectory}/${cookbook}"
 
+@Library('cookbookPipeline')
+
 stage('Versioning') {
   node {
     cookbookPipeline.versionCheck(scm, cookbookDirectory, currentBranch, cookbook)
