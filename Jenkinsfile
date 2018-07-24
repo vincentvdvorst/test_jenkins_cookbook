@@ -170,6 +170,7 @@ def versionCheck(scm, cookbookDirectory, currentBranch) {
           @echo off
           knife cookbook show ${cookbook}
         """)
+        echo cookbookDetails
         currentVersion.set(cookbookDetails.split()[1])
       }
       catch(err) {
@@ -185,6 +186,9 @@ def versionCheck(scm, cookbookDirectory, currentBranch) {
     }
   }
   catch(err) {
+    echo "#######################"
+    echo "Build Failed"
+    echo "#######################"
     currentBuild.result = 'FAILED'
     error err.getMessage()
     throw err
