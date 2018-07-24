@@ -146,203 +146,149 @@ def versionPin(currentEnvironment, chefRepo, cookbookDirectory, cookbook, versio
   }
 }
 
-stage('Versioning') {
-  node {
-    try {
-      echo "Checking if version is updated."
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory) {
+def versionCheck(scm, cookbookDirectory, currentBranch) {
+  echo "Checking if version is updated."
+  try {
+    fetch(scm, cookbookDirectory, currentBranch)
+    dir(cookbookDirectory) {
+      newVersion = new SemVer()
 
-        newVersion = new SemVer()
+      def metadataLines = readFile "metadata.rb"
 
-        def metadataLines = readFile "metadata.rb"
-
-        for (line in metadataLines.split("\n")) {
-          if (line ==~ /^version.*/) {
-            newVersion.set(line.split(" ")[1].replace("\'", ""))
-          }
+      for (line in metadataLines.split("\n")) {
+        if (line ==~ /^version.*/) {
+          newVersion.set(line.split(" ")[1].replace("\'", ""))
         }
+      }
 
-        cookbookDetails = ""
+      cookbookDetails = ""
 
-        currentVersion = new SemVer()
+      currentVersion = new SemVer()
 
-        try {
-          cookbookDetails = bat(returnStdout: true, script: """
-            @echo off
-            knife cookbook show ${cookbook}
-          """)
-          currentVersion.set(cookbookDetails.split()[1])
-        }
-        catch(err) {
-          echo "Cookbook is not present on Chef server, no version bump is required."
-        }
+      try {
+        cookbookDetails = bat(returnStdout: true, script: """
+          @echo off
+          knife cookbook show ${cookbook}
+        """)
+        currentVersion.set(cookbookDetails.split()[1])
+      }
+      catch(err) {
+        echo "Cookbook is not present on Chef server, no version bump is required."
+      }
 
-        if (!newVersion.isNewerThan(currentVersion)) {
-          throw new Exception("The version that has been set is not newer than the previous version.")
-        } else {
-          echo "The version has been set appropriately. Existing version: ${currentVersion.toString()}, new version is: ${newVersion.toString()}"
-        }
+      if (!newVersion.isNewerThan(currentVersion)) {
+        throw new Exception("The version that has been set is not newer than the previous version.")
+      } else {
+        echo "The version has been set appropriately. Existing version: ${currentVersion.toString()}, new version is: ${newVersion.toString()}"
       }
       currentBuild.result = 'SUCCESS'
     }
-    catch(err) {
+  }
+  catch(err) {
+    currentBuild.result = 'FAILED'
+    error err.getMessage()
+    throw err
+  }
+}
+
+def lintTest(scm, cookbookDirectory, currentBranch) {
+  echo "cookbook: ${cookbook}"
+  echo "current branch: ${currentBranch}"
+  echo "checkout directory: ${cookbookDirectory}"
+  try {
+    fetch(scm, cookbookDirectory, currentBranch)
+    dir(cookbookDirectory) {
+      bat "chef exec cookstyle ."
+    }
+    currentBuild.result = 'SUCCESS'
+  }
+  catch(err) {
+    currentBuild.result = 'FAILED'
+    throw err
+  }
+}
+
+def unitTests(scm, cookbookDirectory, currentBranch) {
+  try {
+    fetch(scm, cookbookDirectory, currentBranch)
+    dir(cookbookDirectory) {
+      bat "berks install"
+      bat "chef exec rspec ."
+    }
+    currentBuild.result = 'SUCCESS'
+  }
+  catch(err) {
+    currentBuild.result = 'FAILED'
+    throw err
+  }
+}
+
+def functionalTests(scm, cookbookDirectory, currentBranch) {
+  try {
+    fetch(scm, cookbookDirectory, currentBranch)
+    dir(cookbookDirectory) {
+      bat '''
+        set KITCHEN_YAML=.kitchen.jenkins.yml
+        set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
+        kitchen verify
+      '''
+    }
+    currentBuild.result = 'SUCCESS'
+  }
+  catch(err) {
+    currentBuild.result = 'FAILED'
+    throw err
+  }
+  finally {
+    dir(cookbookDirectory) {
+      bat '''
+        set KITCHEN_YAML=.kitchen.jenkins.yml
+        kitchen destroy
+      '''
+    }
+  }
+}
+
+def publish(scm, cookbookDirectory, currentBranch) {
+  if ( currentBranch == stableBranch ) {
+    echo "Attempting upload of stable branch cookbook to Chef server."
+    try{
+      fetch(scm, cookbookDirectory, currentBranch)
+      dir(cookbookDirectory) {
+        bat "berks vendor"
+        bat "berks upload --halt-on-frozen"
+        currentBuild.result = 'SUCCESS'
+      }
+    }
+    catch(err){
       currentBuild.result = 'FAILED'
-      error err.getMessage()
       throw err
     }
+  } else {
+    echo "Skipping Publishing stage as this is not the stable branch."
+  }
+}
+
+stage('Versioning') {
+  node {
+    versionCheck(scm, cookbookDirectory, currentBranch)
   }
 }
 
 stage('Linting') {
   node {
-
-    echo "cookbook: ${cookbook}"
-    echo "current branch: ${currentBranch}"
-    echo "checkout directory: ${cookbookDirectory}"
-    try {
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory) {
-        bat "chef exec cookstyle ."
-      }
-      currentBuild.result = 'SUCCESS'
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-      throw err
-    }
+    lintTest(scm, cookbookDirectory, currentBranch)
   }
 }
 
 stage('Unit Testing') {
   node {
-    try {
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory) {
-        bat "berks install"
-        bat "chef exec rspec ."
-      }
-      currentBuild.result = 'SUCCESS'
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-      throw err
-    }
+    unitTests(scm, cookbookDirectory, currentBranch)
   }
 }
 
 stage('Functional (Kitchen)') {
   node {
-    try {
-      fetch(scm, cookbookDirectory, currentBranch)
-      dir(cookbookDirectory) {
-       bat '''
-          set KITCHEN_YAML=.kitchen.jenkins.yml
-          set KITCHEN_EC2_SSH_KEY_PATH=D:/kitchen/vvdvorst-us-east-1-sandbox.pem
-          kitchen verify
-        '''
-      }
-      currentBuild.result = 'SUCCESS'
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-      throw err
-    }
-    finally {
-      dir(cookbookDirectory) {
-        bat '''
-          set KITCHEN_YAML=.kitchen.jenkins.yml
-          kitchen destroy
-        '''
-      }
-    }
-  }
-}
-
-stage('Publishing') {
-  node {
-    if ( currentBranch == stableBranch ) {
-      echo "Attempting upload of stable branch cookbook to Chef server."
-      try{
-        fetch(scm, cookbookDirectory, currentBranch)
-        dir(cookbookDirectory) {
-          bat "berks vendor"
-          bat "berks upload --halt-on-frozen"
-          currentBuild.result = 'SUCCESS'
-        }
-      }
-      catch(err){
-        currentBuild.result = 'FAILED'
-        throw err
-      }
-    } else {
-      echo "Skipping Publishing stage as this is not the stable branch."
-    }
-  }
-}
-
-stage('Pinning in QA') {
-  if (currentBranch == stableBranch) {
-    def approval = input(message: "Deploy to ${qaEnvironment}?", ok: 'Yes', 
-                          parameters: [booleanParam(defaultValue: true, 
-                          description: 'Update version pins in environment?',name: 'Yes?')])
-
-    if (approval == true) {
-      node {
-        try{
-          fetch(scm, cookbookDirectory, currentBranch)
-          versionPin(qaEnvironment, chefRepo, cookbookDirectory, cookbook, versionPinOperator)
-        }
-        catch(err){
-          println err.getMessage()
-          currentBuild.result = 'FAILED'
-          throw err
-        }
-      }
-    }
-  } else {
-    echo "Skipping Pinning stage"
-  }
-}
-
-stage('Pinning in Prod') {
-  if (currentBranch == stableBranch) {
-    def approval = input(message: "Deploy to ${prodEnvironment}?", ok: 'Yes', 
-                          parameters: [booleanParam(defaultValue: true, 
-                          description: 'Update version pins in environment?',name: 'Yes?')])
-
-    if (approval == true) {
-      node {
-        try{
-          fetch(scm, cookbookDirectory, currentBranch)
-          versionPin(prodEnvironment, chefRepo, cookbookDirectory, cookbook, versionPinOperator)
-        }
-        catch(err){
-          println err.getMessage()
-          currentBuild.result = 'FAILED'
-          throw err
-        }
-      }
-    }
-  } else {
-    echo "Skipping Pinning stage"
-  }
-}
-
-stage('Clean up') {
-  node {
-    try {
-      dir(cookbookDirectory) {
-        bat '''
-          set KITCHEN_YAML=.kitchen.jenkins.yml
-          kitchen destroy
-        '''
-        currentBuild.result = 'SUCCESS'
-      }
-    }
-    catch(err) {
-      currentBuild.result = 'FAILED'
-      throw err
-    }
+    functionalTests(scm, cookbookDirectory, currentBranch)
   }
 }
