@@ -64,7 +64,7 @@ stage('Publishing') {
         powershell(script: "git config user.name \"Jenkins Builder\"")
         powershell(script: "git config user.email \"cog@gamestop.com\"")
         powershell(script: "git tag -a ${version} -m ${version}")
-        powershell(script: "git push https://'${GIT_USERNAME}':'${encodedPassword}'@${gitURL} ${newVer}")
+        powershell(script: "git push https://'${GIT_USERNAME}':'${encodedPassword}'@${gitURL} ${version}")
       }
     }
   }
