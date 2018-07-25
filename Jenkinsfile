@@ -22,32 +22,32 @@ def cookbookDirectory = "${chefRepoCookbookDirectory}/${cookbook}"
 
 @Library('cookbookPipeline') _
 
-stage('Versioning') {
-  node {
-    cookbookPipeline.versionCheck(scm, cookbookDirectory, currentBranch, cookbook)
-  }
-}
+// stage('Versioning') {
+//   node {
+//     cookbookPipeline.versionCheck(scm, cookbookDirectory, currentBranch, cookbook)
+//   }
+// }
 
-stage('Linting') {
-  node {
-    cookbookPipeline.lintTest(scm, cookbookDirectory, currentBranch, cookbook)
-  }
-}
+// stage('Linting') {
+//   node {
+//     cookbookPipeline.lintTest(scm, cookbookDirectory, currentBranch, cookbook)
+//   }
+// }
 
-stage('Unit Testing') {
-  node {
-    cookbookPipeline.unitTests(scm, cookbookDirectory, currentBranch, cookbook)
-  }
-}
+// stage('Unit Testing') {
+//   node {
+//     cookbookPipeline.unitTests(scm, cookbookDirectory, currentBranch, cookbook)
+//   }
+// }
 
-stage('Functional (Kitchen)') {
-  node {
-    if (currentBranch == stableBranch) {
-      cookbookPipeline.functionalTests(scm, cookbookDirectory, currentBranch, cookbook)
-    } else {
-      echo "Skipping functional tests for branch: ${currentBranch}"
-    }
-  }
+// stage('Functional (Kitchen)') {
+//   node {
+//     if (currentBranch == stableBranch) {
+//       cookbookPipeline.functionalTests(scm, cookbookDirectory, currentBranch, cookbook)
+//     } else {
+//       echo "Skipping functional tests for branch: ${currentBranch}"
+//     }
+//   }
 }
 
 stage('Publishing') {
