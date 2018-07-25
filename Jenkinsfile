@@ -53,19 +53,8 @@ def cookbookDirectory = "${chefRepoCookbookDirectory}/${cookbook}"
 stage('Publishing') {
   node {
     // cookbookPipeline.publish(scm, cookbookDirectory, currentBranch, stableBranch, cookbook)
-    credentialId = "16fab210-1259-4cb5-9acc-c2134ac32ea4"
-    version = cookbookPipeline.getNewVersion(scm, cookbookDirectory, currentBranch)
-    dir(cookbookDirectory) {
-      withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: credentialId, usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD']]) {
-        echo "New version is: ${version}"
-        version = "22.3.2"
-        gitURL = powershell(script: "git remote get-url origin", returnStdout: true).trim().split("//")[1]
-        encodedPassword = java.net.URLEncoder.encode(GIT_PASSWORD, "UTF-8")
-        powershell(script: "git config user.name \"Jenkins Builder\"")
-        powershell(script: "git config user.email \"cog@gamestop.com\"")
-        powershell(script: "git tag -a ${version} -m ${version}")
-        powershell(script: "git push https://'${GIT_USERNAME}':'${encodedPassword}'@${gitURL} ${version}")
-      }
+    if (currentBranch == currentBranch) {
+      cookbookPipeline.updateGitTag(scm, cookbookDirectory, currentBranch)
     }
   }
 }
