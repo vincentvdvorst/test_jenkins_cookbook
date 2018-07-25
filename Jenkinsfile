@@ -59,7 +59,7 @@ stage('Publishing') {
       withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: credentialId, usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD']]) {
         echo "New version is: ${version}"
         version = "22.3.2"
-        gitURL = GIT_URL.split("//")[1]
+        gitURL = powershell(script: "git remote get-url origin", returnStdout: true).trim().split("//")[1]
         encodedPassword = java.net.URLEncoder.encode(GIT_PASSWORD, "UTF-8")
         powershell(script: "git config user.name \"Jenkins Builder\"")
         powershell(script: "git config user.email \"cog@gamestop.com\"")
