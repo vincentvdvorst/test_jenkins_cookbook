@@ -48,7 +48,7 @@ def cookbookDirectory = "${chefRepoCookbookDirectory}/${cookbook}"
 //       echo "Skipping functional tests for branch: ${currentBranch}"
 //     }
 //   }
-}
+// }
 
 stage('Publishing') {
   node {
