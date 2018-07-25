@@ -52,6 +52,8 @@ stage('Functional (Kitchen)') {
 
 stage('Publishing') {
   node {
-    cookbookPipeline.publish(scm, cookbookDirectory, currentBranch, stableBranch, cookbook)
+    // cookbookPipeline.publish(scm, cookbookDirectory, currentBranch, stableBranch, cookbook)
+    version = cookbookPipeline.getNewVersion(scm, cookbookDirectory, currentBranch)
+    echo "New version is: ${version}"
   }
 }
