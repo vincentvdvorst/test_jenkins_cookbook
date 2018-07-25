@@ -54,9 +54,11 @@ stage('Publishing') {
   node {
     // cookbookPipeline.publish(scm, cookbookDirectory, currentBranch, stableBranch, cookbook)
     version = cookbookPipeline.getNewVersion(scm, cookbookDirectory, currentBranch)
-    echo "New version is: ${version}"
-    version = "22.3.2"
-    powershell(script: "git tag -a ${version} -m ${version}")
-    powershell(script: "git push ${version}")
+    dir(cookbookDirectory) {
+      echo "New version is: ${version}"
+      version = "22.3.2"
+      powershell(script: "git tag -a ${version} -m ${version}")
+      powershell(script: "git push ${version}")
+    }
   }
 }
