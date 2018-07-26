@@ -8,7 +8,7 @@ driver:
   associate_public_ip: true
   interface: private
   iam_profile_name: JenkinsBuilder
-  aws_ssh_key_id: vvdvorst-us-east-1-sandbox
+  aws_ssh_key_id: jenkins_kitchen_key
   tags:
     Name: 'chef_jenkins_test'
     StackColor: 'Green'

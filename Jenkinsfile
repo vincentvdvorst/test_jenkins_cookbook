@@ -52,6 +52,9 @@ stage('Functional (Kitchen)') {
 
 stage('Publishing') {
   node {
-    cookbookPipeline.publish(scm, cookbookDirectory, currentBranch, stableBranch, cookbook)
+    if (currentBranch == stableBranch) {
+      cookbookPipeline.updateGitTag(scm, cookbookDirectory, currentBranch)
+      cookbookPipeline.publish(scm, cookbookDirectory, currentBranch, stableBranch, cookbook)
+    }
   }
 }
